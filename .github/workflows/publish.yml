@@ -1,0 +1,55 @@
+name: Retry publication of a validated build
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Completed repository workflow run with all build jobs successful
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: rustpi-repository-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Verify source workflow and successful builds
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.run_id }}
+        run: python3 ci/verify-build-run.py
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: packages-*
+          path: incoming
+          run-id: ${{ steps.source.outputs.run }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: recipes
+          path: source-recipes
+          run-id: ${{ steps.source.outputs.run }}
+          github-token: ${{ github.token }}
+      - name: Install repository tools
+        run: sudo bash ci/install-publish-tools.sh
+      - name: Sign and publish the validated snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_SIGNING_KEY: ${{ secrets.REPO_SIGNING_KEY }}
+          REPO_SIGNING_PASSPHRASE: ${{ secrets.REPO_SIGNING_PASSPHRASE }}
+          SOURCE_BUILD_SHA: ${{ steps.source.outputs.sha }}
+          SOURCE_BUILD_RUN: ${{ steps.source.outputs.run }}
+        run: python3 ci/publish.py incoming --recipes source-recipes/recipes.tar.gz

@@ -57,7 +57,10 @@ Server = https://github.com/Emiya173/rustpi-packages/releases/latest/download
 临时副本保留 14 天，release 中的配方与二进制不随它过期。
 
 手动运行 **Build and publish repository**：`force` 强制构建，`publish=false`
-只验证不发布。PR 只能构建，拿不到发布凭据。构建任务只读仓库，签名密钥只在
+只验证不发布。如果构建全部成功、仅发布阶段失败，可以运行
+**Retry publication of a validated build** 并填写原 run ID，复用其已验证产物。
+它拒绝 PR、其他分支以及任何构建检查失败的 run；产物须仍在 14 天保留期内。
+PR 只能构建，拿不到发布凭据。构建任务只读仓库，签名密钥只在
 独立发布任务中可用。签名私钥不在仓库；使用 GitHub Secrets
 `REPO_SIGNING_KEY`、`REPO_SIGNING_PASSPHRASE`。CI 只持有签名子密钥，
 主密钥保留在维护者本地；签名子密钥有效期两年。

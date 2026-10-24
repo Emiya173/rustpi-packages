@@ -192,8 +192,9 @@ def main():
         manifest = {'schema': 1, 'repository': REPO, 'fingerprint': fingerprint,
                     'created': datetime.now(timezone.utc).isoformat(), 'packages': packages,
                     'groups': groups, 'history': retained, 'recipes': recipes,
-                    'build_commit': os.environ.get('GITHUB_SHA'),
-                    'build_run': os.environ.get('GITHUB_RUN_ID')}
+                    'build_commit': os.environ.get('SOURCE_BUILD_SHA', os.environ.get('GITHUB_SHA')),
+                    'build_run': os.environ.get('SOURCE_BUILD_RUN', os.environ.get('GITHUB_RUN_ID')),
+                    'publication_run': os.environ.get('GITHUB_RUN_ID')}
         (stage / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
         sign(stage / 'manifest.json')
         shutil.copy2(ROOT / 'keys/emiya-rustpi.asc', stage / 'emiya-rustpi.asc')
