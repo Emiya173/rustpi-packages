@@ -14,6 +14,8 @@ gpg --batch --yes --dearmor -o alarm.gpg "$repo/keys/archlinuxarm.asc"
 gpgv --keyring "$PWD/alarm.gpg" alarm.tar.gz.sig alarm.tar.gz
 tar --numeric-owner --xattrs --acls -xpf alarm.tar.gz -C "$root"
 rm -f alarm.tar.gz alarm.tar.gz.sig
+# Give the chroot its own root mount so pacman CheckSpace can resolve /var/cache.
+mount --bind "$root" "$root"
 mount --rbind /dev "$root/dev"
 mount --make-rslave "$root/dev"
 mount -t proc proc "$root/proc"
