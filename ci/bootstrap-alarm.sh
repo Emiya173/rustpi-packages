@@ -8,8 +8,8 @@ root=${2:-/opt/rustpi-alarm}
 [[ ! -e $root ]]
 mkdir -p "$root" /tmp/rustpi-bootstrap
 cd /tmp/rustpi-bootstrap
-curl --fail --location --retry 5 -o alarm.tar.gz https://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz
-curl --fail --location --retry 5 -o alarm.tar.gz.sig https://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz.sig
+curl --fail --location --retry 5 -o alarm.tar.gz https://ca.us.mirror.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz
+curl --fail --location --retry 5 -o alarm.tar.gz.sig https://ca.us.mirror.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz.sig
 gpg --batch --yes --dearmor -o alarm.gpg "$repo/keys/archlinuxarm.asc"
 gpgv --keyring "$PWD/alarm.gpg" alarm.tar.gz.sig alarm.tar.gz
 tar --numeric-owner --xattrs --acls -xpf alarm.tar.gz -C "$root"
@@ -23,7 +23,7 @@ install -m 644 /etc/resolv.conf "$root/etc/resolv.conf"
 # The build root contains only ALARM repositories. It never consumes the custom
 # binary repository it is building, nor any local rustpi packages or services.
 # shellcheck disable=SC2016 # These variables are expanded later by pacman.
-printf 'Server = https://mirror.archlinuxarm.org/$arch/$repo\n' > "$root/etc/pacman.d/mirrorlist"
+printf 'Server = https://ca.us.mirror.archlinuxarm.org/$arch/$repo\n' > "$root/etc/pacman.d/mirrorlist"
 chroot "$root" pacman-key --init
 chroot "$root" pacman-key --populate archlinuxarm
 chroot "$root" pacman -Sy --noconfirm archlinuxarm-keyring

@@ -8,7 +8,7 @@ depends=('ffmpeg-rustpi' python)
 provides=(jellyfin-ffmpeg)
 conflicts=(jellyfin-ffmpeg)
 source=(ffmpeg README.txt LICENSE)
-sha256sums=('e814902b32ec07f21e1a18c59433ee7c152e2ba28286f4e50f209613eecb6864' '9b9a638e01f771aa2d92e6b87a16aace44074e5976011fe1f89f2f23375471a5' '2c8bc04a1f8307bf6c673389f656c7d2270f302d357da7b83e3981f40a39b892')
+sha256sums=('e814902b32ec07f21e1a18c59433ee7c152e2ba28286f4e50f209613eecb6864' 'bea0b3c38b0ecc17f47f0fd6279386da5fc864523919e6e442541f682a00fce3' '2c8bc04a1f8307bf6c673389f656c7d2270f302d357da7b83e3981f40a39b892')
 options=(!strip !debug)
 package() {
   install -Dm755 "$srcdir/ffmpeg" "$pkgdir/usr/lib/jellyfin-ffmpeg/ffmpeg"

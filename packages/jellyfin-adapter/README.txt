@@ -16,4 +16,4 @@ HDR tone mapping is not provided by this adapter.
 
 The pacman provide jellyfin-ffmpeg satisfies jellyfin-server-bin dependencies
 without installing another FFmpeg binary. Future upstream system FFmpeg updates
-must retain the custom patches; the binary repository automation is pending.
+must retain the custom patches; the emiya-rustpi binary repository publishes the patched system package.
