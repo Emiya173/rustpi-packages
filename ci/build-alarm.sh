@@ -22,7 +22,9 @@ for recipe in "${recipes[@]}"; do
     makepkg --printsrcinfo > /build/out/"$recipe".SRCINFO
     mapfile -t packages < <(makepkg --packagelist)
     for package in "${packages[@]}"; do
-        cp "$package" /build/out/
+        # Epoch remains in .PKGINFO; artifact filenames must be portable.
+        filename=$(basename "$package" | sed -E 's/-[0-9]+:/-/')
+        cp "$package" "/build/out/$filename"
     done
 done
 cd /build
