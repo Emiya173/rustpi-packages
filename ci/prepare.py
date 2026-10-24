@@ -126,6 +126,8 @@ def ffmpeg():
     assert hashlib.blake2b(patch).hexdigest() == sums[sources.index(chromium)]
     (package / chromium).write_bytes(patch)
     (upstream / chromium).write_bytes(patch)
+    assert re.search(r'^arch=\(.*?\)$', recipe, re.M), 'Missing ALARM architecture array'
+    recipe = re.sub(r'^arch=\(.*?\)$', 'arch=(aarch64)', recipe, count=1, flags=re.M)
     edits = [
         (f'pkgrel={release}', f'pkgrel={release}.{PINS["ffmpeg_revision"]}'),
         ('  libudev.so\n', '  libudev.so\n'),
