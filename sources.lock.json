@@ -1,0 +1,27 @@
+{
+  "kernel": {
+    "alarm_commit": "0e55b970ab6f10c2c1b1bbe8e31bbd3d9ca0e74b",
+    "version": "7.2.12-1",
+    "rknpu_commit": "a6bcdb120b8a21255c6520f0504a13a5d37b9045",
+    "source_name": "linux-7.2",
+    "sources": {
+      "https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.2.tar.xz": "f9fef3d14c0df53819026f4be74459835c2a0b0dcbf5b5bbd9ea19f0829402b3",
+      "https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.2.12.xz": "db20b9c86ae2680a27c4d8ceb50c47cb78f4319d7dddc1ce99ced8a59e429283",
+      "0001-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch": "3cc4e31aef52c091b86609f2750069cad44a089c3b9228585d2375b72967d076",
+      "0002-pps-Compatibility-hack-should-be-X86-specific.patch": "b0ac7e7828601b034c5f82cf5d0bf7a0fdc67fc79644fc4ebd2ac20c167c13a7",
+      "0003-Revert-arm64-dts-rockchip-Move-rk3568-PCIe3-MSI-to-u.patch": "9b7bbd201e08602a829fb1293541764863dddcc4f046e5befd801a9af78ca9e9",
+      "0004-serial-amba-pl011-add-arm-pl011-axi-binding-for-RP1.patch": "ca9adf0aed11a8b2372998477cc9e91ea3564cef7066d6ddc4fd0007dbe5d4e5",
+      "0005-arm64-dts-rpi5-add-RP1-UART0-GPIO14-15-console.patch": "9884639546f2d7612518ba8e4d0b01ca2c5f919370059f2c71542a7adc031901",
+      "rustpi-dp.patch.xz": "73ef467e5e3206456df0f210430c48d7ac83544cf1124d312918299872a42223",
+      "config": "ba79ced759e4f4809f99a262ee839c382b66d98ae6b0c424c9ced4675b2157f0",
+      "dp-commits.txt": "ebe81c36a094541c68e58353fa6b3331b3062982be70fff6a68b62a63ed651cb",
+      "rknpu-a6bcdb120b8a21255c6520f0504a13a5d37b9045.tar.gz::https://codeload.github.com/lurenJBD/rk3588-rknn-core/tar.gz/a6bcdb120b8a21255c6520f0504a13a5d37b9045": "9f30de630bdfd9bbbfb2f4914acc0cacfe55e3ffdd8a468ddeb65637adfc3037",
+      "60-rustpi-rknpu.conf": "3d726bea912f5e3966d29d0af9fe73c0fa42ba981a7fdbbd9735b0a3980c3abb",
+      "60-rustpi-rknpu-load.conf": "de4964dad8b6fb6b981d98e21b100259e8ed297e7242922529849cdd02609698"
+    }
+  },
+  "ffmpeg": {
+    "alarm_commit": "72248ab7d35fd523d69013a4a9d3b2111512e35b",
+    "version": "2:9.0.2-2.2"
+  }
+}

@@ -1,0 +1,122 @@
+# ALARM kernel + USB-C DP + matching headers and RKNN-compatible NPU driver.
+# ALARM source commit: @ALARM_COMMIT@
+pkgbase=linux-aarch64-emiya-rustpi
+pkgname=("$pkgbase" "$pkgbase-headers" "$pkgbase-rknpu")
+pkgver=@VERSION@
+pkgrel=@RELEASE@
+_srcname=@SOURCE_NAME@
+_rknpu_commit=@RKNPU_COMMIT@
+arch=('aarch64')
+url='https://archlinuxarm.org/packages/aarch64/linux-aarch64'
+license=('GPL-2.0-only')
+makedepends=('bc' 'dtc' 'pahole' 'python' 'kmod' 'flex' 'bison' 'openssl' 'libelf')
+options=(!strip !debug !lto !buildflags)
+source=(
+  @SOURCES@
+)
+sha256sums=(
+  @SUMS@
+)
+
+_kmake() {
+  if [[ -n ${RUSTPI_TARGET_CC:-} ]]; then
+    make CC="$RUSTPI_TARGET_CC" CROSS_COMPILE="$RUSTPI_TARGET_BINUTILS" "$@"
+  else
+    make "$@"
+  fi
+}
+prepare() {
+  cd "$_srcname"
+  if [[ -f ../patch-${pkgver}.xz ]]; then
+    xz -cd ../patch-${pkgver}.xz | patch --forward --batch --fuzz=0 -p1
+  fi
+  for p in "$srcdir"/000*.patch; do patch --forward --batch --fuzz=0 -p1 < "$p"; done
+  xz -cd ../rustpi-dp.patch.xz | patch --forward --batch --fuzz=0 -p1
+  printf '%s\n' "-$pkgrel" > localversion.10-pkgrel
+  printf '%s\n' "${pkgbase#linux}" > localversion.20-pkgname
+  cp "$srcdir/config" .config
+  scripts/config --disable LOCALVERSION_AUTO --set-str LOCALVERSION ''
+  scripts/config --enable USB_DWC3_ROCKCHIP --enable DRM_AUX_BRIDGE
+  scripts/config --module TYPEC_DP_ALTMODE --module SND_SOC_HDMI_CODEC
+}
+build() {
+  cd "$_srcname"
+  unset LDFLAGS
+  _kmake LOCALVERSION= olddefconfig prepare
+  _kmake -s LOCALVERSION= kernelrelease > version
+  for symbol in EFI_STUB EFI_PARTITION BLK_DEV_NVME EXT4_FS R8169 DRM_ROCKCHIP DRM_DW_DP PHY_ROCKCHIP_USBDP USB_DWC3_ROCKCHIP TYPEC_FUSB302 TYPEC_DP_ALTMODE FRAMEBUFFER_CONSOLE VIDEO_ROCKCHIP_VDEC VIDEO_HANTRO CMA; do
+    grep -Eq "^CONFIG_${symbol}=[ym]$" .config || { error "Required option missing: $symbol"; return 1; }
+  done
+  _kmake LOCALVERSION= DTC_FLAGS=-@ Image modules rockchip/rk3588-orangepi-5-plus.dtb
+  _kmake LOCALVERSION= M="$srcdir/rk3588-rknn-core-$_rknpu_commit" modules
+}
+package_linux-aarch64-emiya-rustpi() {
+  pkgdesc='ALARM kernel with USB-C DP support for Orange Pi 5 Plus'
+  depends=('coreutils' 'initramfs' 'kmod')
+  optdepends=('linux-firmware: firmware for supported devices')
+  cd "$_srcname"
+  local kver=$(<version)
+  _kmake LOCALVERSION= INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 modules_install
+  printf '%s\n' "$pkgbase" | install -Dm644 /dev/stdin "$pkgdir/usr/lib/modules/$kver/pkgbase"
+  install -Dm644 arch/arm64/boot/Image "$pkgdir/usr/lib/modules/$kver/vmlinuz"
+  find "$pkgdir/usr/lib/modules/$kver" -maxdepth 1 -type l -name build -delete
+  find "$pkgdir/usr/lib/modules/$kver" -maxdepth 1 -type l -name source -delete
+  install -Dm644 arch/arm64/boot/dts/rockchip/rk3588-orangepi-5-plus.dtb \
+    "$pkgdir/boot/dtbs/$pkgbase/rockchip/rk3588-orangepi-5-plus.dtb"
+  install -Dm644 .config "$pkgdir/usr/share/doc/$pkgbase/config"
+  install -Dm644 "$startdir/dp-commits.txt" "$pkgdir/usr/share/doc/$pkgbase/dp-commits.txt"
+}
+package_linux-aarch64-emiya-rustpi-headers() {
+  pkgdesc='Matching ARM64 headers and tools for linux-aarch64-emiya-rustpi'
+  depends=("$pkgbase=$pkgver-$pkgrel" 'glibc')
+  optdepends=('gcc: external module compilation' 'make: external module compilation')
+  cd "$_srcname"
+  local kver=$(<version)
+  local builddir="$pkgdir/usr/lib/modules/$kver/build"
+  install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map localversion.* version vmlinux
+  install -Dt "$builddir/kernel" -m644 kernel/Makefile
+  install -Dt "$builddir/arch/arm64" -m644 arch/arm64/Makefile
+  cp -a include "$builddir/"
+  cp -a arch/arm64/include "$builddir/arch/arm64/"
+  install -d "$builddir/arch/arm"
+  cp -a arch/arm/include "$builddir/arch/arm/"
+  install -Dt "$builddir/arch/arm64/kernel" -m644 arch/arm64/kernel/asm-offsets.s
+  if [[ -n ${RUSTPI_TARGET_CC:-} ]]; then
+    [[ -n ${RUSTPI_HEADER_TOOLS_DIR:-} ]] || { error 'Set RUSTPI_HEADER_TOOLS_DIR to the rebuilt ARM64 tools'; return 1; }
+    cp -a "$RUSTPI_HEADER_TOOLS_DIR/scripts" "$builddir/"
+  else
+    cp -a scripts "$builddir/"
+  fi
+  for dir in drivers/md net/mac80211 drivers/media/usb/dvb-usb drivers/media/dvb-frontends drivers/media/tuners drivers/iio/common/hid-sensors; do
+    install -Dt "$builddir/$dir" -m644 "$dir"/*.h
+  done
+  install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+  find . -name 'Kconfig*' -exec install -Dm644 '{}' "$builddir/{}" \;
+  find "$builddir" -type f -name '*.o' -delete
+  find -L "$builddir" -type l -delete
+  # Reject cross-build host executables that cannot run on the ARM64 target.
+  python - "$builddir/scripts" <<'CHECK'
+import pathlib,struct,sys
+for p in pathlib.Path(sys.argv[1]).rglob('*'):
+ if p.is_file():
+  with p.open('rb') as f: h=f.read(20)
+  if h[:4]==b'\x7fELF':
+   assert struct.unpack('<H',h[18:20])[0]==183, f'Non-ARM64 tool: {p}'
+CHECK
+  local striptool=${RUSTPI_TARGET_BINUTILS:-}strip
+  "$striptool" --strip-debug "$builddir/vmlinux"
+  install -d "$pkgdir/usr/src"
+  ln -s "../lib/modules/$kver/build" "$pkgdir/usr/src/$pkgbase"
+}
+
+package_linux-aarch64-emiya-rustpi-rknpu() {
+  pkgdesc='RKNN-compatible RK3588 NPU driver for the matching Emiya rustpi kernel'
+  depends=("$pkgbase=$pkgver-$pkgrel" 'kmod')
+  install=rknpu.install
+  local kver=$(<"$srcdir/$_srcname/version")
+  install -Dm644 "$srcdir/rk3588-rknn-core-$_rknpu_commit/rknpu.ko" "$pkgdir/usr/lib/modules/$kver/updates/rknpu.ko"
+  install -Dm644 "$srcdir/60-rustpi-rknpu.conf" "$pkgdir/usr/lib/modprobe.d/60-rustpi-rknpu.conf"
+  install -Dm644 "$srcdir/60-rustpi-rknpu-load.conf" "$pkgdir/usr/lib/modules-load.d/60-rustpi-rknpu.conf"
+  printf 'ALARM commit: @ALARM_COMMIT@\nRKNPU commit: %s\nKernel release: %s\n' "$_rknpu_commit" "$kver" |
+    install -Dm644 /dev/stdin "$pkgdir/usr/share/doc/$pkgbase-rknpu/BUILD-INFO"
+}

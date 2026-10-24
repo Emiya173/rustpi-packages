@@ -1,0 +1,18 @@
+pkgname=jellyfin-ffmpeg-system-rustpi
+pkgver=1.0.0
+pkgrel=2
+pkgdesc='Jellyfin V4L2 Request argument adapter for patched system FFmpeg on rustpi'
+arch=(any)
+license=(MIT)
+depends=('ffmpeg-rustpi' python)
+provides=(jellyfin-ffmpeg)
+conflicts=(jellyfin-ffmpeg)
+source=(ffmpeg README.txt LICENSE)
+sha256sums=('e814902b32ec07f21e1a18c59433ee7c152e2ba28286f4e50f209613eecb6864' '9b9a638e01f771aa2d92e6b87a16aace44074e5976011fe1f89f2f23375471a5' '2c8bc04a1f8307bf6c673389f656c7d2270f302d357da7b83e3981f40a39b892')
+options=(!strip !debug)
+package() {
+  install -Dm755 "$srcdir/ffmpeg" "$pkgdir/usr/lib/jellyfin-ffmpeg/ffmpeg"
+  install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  ln -s /usr/bin/ffprobe "$pkgdir/usr/lib/jellyfin-ffmpeg/ffprobe"
+  install -Dm644 "$srcdir/README.txt" "$pkgdir/usr/share/doc/$pkgname/README.txt"
+}

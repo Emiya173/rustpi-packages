@@ -1,0 +1,74 @@
+#!/usr/bin/python3
+"""Add stateless V4L2 decoding to Jellyfin's CPU-encoder invocations."""
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+FFMPEG = '/usr/bin/ffmpeg'
+FFPROBE = '/usr/bin/ffprobe'
+VIDEO_CODEC_OPTION = re.compile(r'^-(?:c|codec):v(?::[0-9]+)?$|^-vcodec$')
+
+def adapt(arguments):
+    inputs = [i for i, value in enumerate(arguments) if value == '-i']
+    if not inputs or inputs[0] + 1 >= len(arguments):
+        return arguments, None
+    first = inputs[0]
+    output = arguments[inputs[-1] + 2:]
+    encoders = [output[i + 1] for i, value in enumerate(output[:-1]) if VIDEO_CODEC_OPTION.fullmatch(value)]
+    if not encoders or any(value not in ('libx264', 'libx265') for value in encoders):
+        return arguments, None
+    before = arguments[:first]
+    if any(value.startswith(('-hwaccel', '-init_hw_device')) for value in before):
+        return arguments, None
+    filename = arguments[first + 1]
+    if filename.startswith('file:'):
+        filename = filename[5:]
+    if not Path(filename).is_file():
+        return arguments, None
+    try:
+        probe = subprocess.run([
+            FFPROBE, '-v', 'error', '-show_entries',
+            'stream=index,codec_type,codec_name,pix_fmt,width,height,profile:stream_disposition=attached_pic',
+            '-of', 'json', '-i', filename,
+        ], capture_output=True, text=True, timeout=20, check=True)
+        videos = [s for s in json.loads(probe.stdout).get('streams', [])
+                  if s.get('codec_type') == 'video' and not s.get('disposition', {}).get('attached_pic')]
+    except (OSError, subprocess.SubprocessError, ValueError) as error:
+        return arguments, 'probe failed; retaining original command (' + type(error).__name__ + ')'
+    if len(videos) != 1:
+        return arguments, 'multiple or absent video streams; retaining original command'
+    video = videos[0]
+    codec = video.get('codec_name')
+    pixel_format = video.get('pix_fmt')
+    allowed = {'h264': ('yuv420p', 'yuvj420p'), 'hevc': ('yuv420p', 'yuv420p10le'),
+               'av1': ('yuv420p', 'yuv420p10le')}
+    if pixel_format not in allowed.get(codec, ()):
+        return arguments, None
+    # Do not alter stream-copy jobs or another explicitly selected input stream.
+    maps = [output[i + 1].rstrip('?') for i, value in enumerate(output[:-1]) if value == '-map']
+    numeric_maps = [int(value[2:]) for value in maps if re.fullmatch(r'0:[0-9]+', value)]
+    if numeric_maps and video['index'] not in numeric_maps:
+        return arguments, None
+    # Override only this input's video decoder/thread options. All output
+    # options, seek offsets, mapping, subtitles and encoder settings survive.
+    clean = []
+    i = 0
+    while i < len(before):
+        if VIDEO_CODEC_OPTION.fullmatch(before[i]) or re.fullmatch(r'-threads:v(?::[0-9]+)?', before[i]):
+            i += 2
+        else:
+            clean.append(before[i])
+            i += 1
+    injected = ['-hwaccel:v:0', 'v4l2request', '-c:v:0', codec, '-threads:v:0', '1']
+    if not any(value in ('-loglevel', '-v') for value in arguments):
+        clean = ['-loglevel', 'verbose', *clean]
+    return clean + injected + arguments[first:], f'{codec} {pixel_format}: V4L2 Request decode via {FFMPEG}'
+
+if __name__ == '__main__':
+    command, message = adapt(sys.argv[1:])
+    if message:
+        print('[rustpi-v4l2-request] ' + message, file=sys.stderr, flush=True)
+    os.execv(FFMPEG, [FFMPEG, *command])

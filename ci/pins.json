@@ -1,0 +1,10 @@
+{
+  "repository": "Emiya173/rustpi-packages",
+  "repo_name": "emiya-rustpi",
+  "rknpu_commit": "a6bcdb120b8a21255c6520f0504a13a5d37b9045",
+  "rknpu_sha256": "9f30de630bdfd9bbbfb2f4914acc0cacfe55e3ffdd8a468ddeb65637adfc3037",
+  "ffmpeg_revision": 2,
+  "kernel_revision": 0,
+  "alarm_mirror": "https://mirror.archlinuxarm.org",
+  "alarm_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6"
+}

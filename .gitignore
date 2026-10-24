@@ -1,0 +1,10 @@
+/out/
+/work/
+__pycache__/
+*.pyc
+*.pkg.tar.*
+**/src/
+**/pkg/
+*.log
+/ci-plan.json
+/artifact-manifest.json

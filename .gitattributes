@@ -1,0 +1,4 @@
+# Preserve upstream patch context and key armor byte-for-byte.
+*.patch -whitespace
+upstream/** -whitespace
+keys/ffmpeg*.asc -whitespace

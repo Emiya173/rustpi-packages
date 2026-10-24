@@ -1,0 +1,117 @@
+name: Build and publish repository
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Rebuild all groups even when inputs are unchanged
+        type: boolean
+        default: false
+      publish:
+        description: Publish successful builds to the signed binary repository
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rustpi-repository-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      changed: ${{ steps.plan.outputs.changed }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Resolve pinned upstream inputs
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force || false }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          args=()
+          if [[ "$EVENT" != pull_request ]]; then args+=(--refresh); fi
+          if [[ "$FORCE" == true || "$EVENT" == pull_request ]]; then args+=(--force); fi
+          python3 ci/prepare.py "${args[@]}"
+          python3 -m unittest discover -s tests -v
+      - name: Store exact source recipes
+        if: steps.plan.outputs.changed == 'true'
+        run: tar --exclude=.git --exclude=out --exclude=work -czf /tmp/recipes.tar.gz .
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: steps.plan.outputs.changed == 'true'
+        with:
+          name: recipes
+          path: /tmp/recipes.tar.gz
+          retention-days: 14
+
+  build:
+    needs: plan
+    if: needs.plan.outputs.changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 350
+    steps:
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: recipes
+      - run: |
+          mkdir recipes
+          tar -xzf recipes.tar.gz -C recipes
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+      - name: Prepare native ALARM build environment
+        run: sudo bash recipes/ci/bootstrap-alarm.sh "$PWD/recipes"
+      - name: Build and validate packages
+        env:
+          BUILD_GROUP: ${{ matrix.group }}
+        run: |
+          sudo chroot /opt/rustpi-alarm runuser -u builder -- bash /build/ci/build-alarm.sh "$BUILD_GROUP"
+          sudo cp -a /opt/rustpi-alarm/build/out ./out
+          sudo chown -R "$USER" out
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: packages-${{ matrix.group }}
+          path: out/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    needs: [plan, build]
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_dispatch' || inputs.publish) &&
+      needs.build.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: packages-*
+          path: incoming
+      - name: Install repository tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends pacman-package-manager libarchive-tools gnupg zstd
+      - name: Sign and publish complete repository snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_SIGNING_KEY: ${{ secrets.REPO_SIGNING_KEY }}
+          REPO_SIGNING_PASSPHRASE: ${{ secrets.REPO_SIGNING_PASSPHRASE }}
+        run: python3 ci/publish.py incoming

@@ -1,0 +1,20 @@
+pkgname=emiya-rustpi-keyring
+pkgver=20261024
+pkgrel=1
+pkgdesc='Signing keys for the Emiya rustpi binary repository'
+arch=('any')
+url='https://github.com/Emiya173/rustpi-packages'
+license=('CC0-1.0')
+depends=('pacman')
+makedepends=('gnupg')
+install=keyring.install
+source=('emiya-rustpi.pub' 'emiya-rustpi-trusted')
+sha256sums=('cad8c956a83976ad286ec7c5cdee0842eb2086a736c99b76c77bf8e73f908010' 'e48b80e00494764f8686e874c1fbb468e02714917118292fac5a1513e136ef5d')
+build() {
+    gpg --batch --yes --dearmor --output emiya-rustpi.gpg emiya-rustpi.pub
+}
+package() {
+    install -Dm644 emiya-rustpi.gpg "$pkgdir/usr/share/pacman/keyrings/emiya-rustpi.gpg"
+    install -Dm644 emiya-rustpi-trusted "$pkgdir/usr/share/pacman/keyrings/emiya-rustpi-trusted"
+    install -Dm644 /dev/null "$pkgdir/usr/share/pacman/keyrings/emiya-rustpi-revoked"
+}
