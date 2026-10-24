@@ -6,6 +6,7 @@ are never replaced with different bytes. Two old versions per package are kept
 in the new snapshot so clients using recently cached databases can still fetch.
 """
 import argparse
+import base64
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -15,6 +16,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import tarfile
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,6 +62,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('incoming', type=Path)
     parser.add_argument('--bootstrap', action='store_true')
+    parser.add_argument('--recipes', type=Path, help='Exact recipes artifact from the planning job')
     args = parser.parse_args()
     incoming = args.incoming.resolve()
     private = os.environ.pop('REPO_SIGNING_KEY', '')
@@ -175,9 +178,22 @@ def main():
         # Release assets are regular files; only the short db/files names are needed.
         for path in stage.glob('*.tar.gz*'):
             path.unlink()
+        recipes = None
+        if args.recipes:
+            with tarfile.open(args.recipes, 'r:gz') as archive:
+                entry = archive.extractfile('./ci-plan.json')
+                assert entry and json.load(entry) == plan, 'Recipe archive does not match the validated packages'
+            bundle = stage / 'build-recipes.tar.gz'
+            shutil.copy2(args.recipes, bundle)
+            sign(bundle)
+            recipes = {'file': bundle.name, 'sha256': digest(bundle)}
+        else:
+            assert args.bootstrap, 'CI publication requires the exact build recipes'
         manifest = {'schema': 1, 'repository': REPO, 'fingerprint': fingerprint,
                     'created': datetime.now(timezone.utc).isoformat(), 'packages': packages,
-                    'groups': groups, 'history': retained}
+                    'groups': groups, 'history': retained, 'recipes': recipes,
+                    'build_commit': os.environ.get('GITHUB_SHA'),
+                    'build_run': os.environ.get('GITHUB_RUN_ID')}
         (stage / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
         sign(stage / 'manifest.json')
         shutil.copy2(ROOT / 'keys/emiya-rustpi.asc', stage / 'emiya-rustpi.asc')
@@ -201,6 +217,21 @@ def main():
             print(f'Incomplete release remains a draft: {tag}; previous latest is unchanged', flush=True)
             raise
         print(f'PUBLISHED: https://github.com/{REPO}/releases/tag/{tag}', flush=True)
+        # Record successful publication in git as well as Releases. This supplies
+        # durable provenance and normal repository activity for scheduled Actions.
+        record = {'release': tag, 'manifest': manifest}
+        record_bytes = (json.dumps(record, indent=2) + '\n').encode()
+        endpoint = f'repos/{REPO}/contents/published.json'
+        existing = subprocess.run(['gh', 'api', endpoint], capture_output=True, text=True)
+        payload = {'message': f'Record signed repository {tag} [skip ci]', 'branch': 'main',
+                   'content': base64.b64encode(record_bytes).decode()}
+        if existing.returncode == 0:
+            payload['sha'] = json.loads(existing.stdout)['sha']
+        else:
+            assert '404' in existing.stderr, existing.stderr
+        subprocess.run(['gh', 'api', '--method', 'PUT', endpoint, '--input', '-'],
+                       input=json.dumps(payload), text=True, check=True, stdout=subprocess.DEVNULL)
+        print('Published versions recorded in published.json', flush=True)
 
 
 if __name__ == '__main__':

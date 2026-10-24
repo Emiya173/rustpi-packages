@@ -105,6 +105,10 @@ jobs:
         with:
           pattern: packages-*
           path: incoming
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: recipes
+          path: source-recipes
       - name: Install repository tools
         run: |
           sudo apt-get update
@@ -114,4 +118,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO_SIGNING_KEY: ${{ secrets.REPO_SIGNING_KEY }}
           REPO_SIGNING_PASSPHRASE: ${{ secrets.REPO_SIGNING_PASSPHRASE }}
-        run: python3 ci/publish.py incoming
+        run: python3 ci/publish.py incoming --recipes source-recipes/recipes.tar.gz

@@ -50,9 +50,11 @@ Server = https://github.com/Emiya173/rustpi-packages/releases/latest/download
 
 ## 维护
 
-`sources.lock.json` 保存初始源码来源；每轮 Actions 的 recipes artifact 保存
-那次使用的完整源码锁定、PKGBUILD 和补丁。release 的签名 `manifest.json`
-记录实际发布版本、来源、摘要和构建组。
+`sources.lock.json` 保存初始源码来源；每个后续 CI release 的签名
+`build-recipes.tar.gz` 永久保存那次使用的完整源码锁定、PKGBUILD 和补丁。
+签名 `manifest.json` 记录实际发布版本、来源、摘要和构建组；发布成功后自动
+更新仓库的 `published.json`，留下版本记录与仓库活动。构建产物的 Actions
+临时副本保留 14 天，release 中的配方与二进制不随它过期。
 
 手动运行 **Build and publish repository**：`force` 强制构建，`publish=false`
 只验证不发布。PR 只能构建，拿不到发布凭据。构建任务只读仓库，签名密钥只在
