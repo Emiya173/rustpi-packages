@@ -1,10 +1,10 @@
 {
-  "release": "repo-20261024T054108Z",
+  "release": "repo-20261025T015433Z",
   "manifest": {
     "schema": 1,
     "repository": "Emiya173/rustpi-packages",
     "fingerprint": "936E1ED81F1B219DA3F4D2260BBC591DA9D66626",
-    "created": "2026-10-24T05:41:07.706244+00:00",
+    "created": "2026-10-25T01:54:33.168272+00:00",
     "packages": {
       "emiya-rustpi-keyring": {
         "name": "emiya-rustpi-keyring",
@@ -133,11 +133,11 @@
       },
       "linux-aarch64-emiya-rustpi": {
         "name": "linux-aarch64-emiya-rustpi",
-        "version": "7.2.12-1",
+        "version": "7.3-1",
         "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-7.2.12-1-aarch64.pkg.tar.zst",
-        "sha256": "ad77c282deda45717a61ddcc87be9f588a8a5175db46883ad08279872a2c56b7",
-        "recipe_sha256": "7be0468a114c3e85ef78b213e10a8147b4b46ac13456117c0a0c7c6f60088a3f",
+        "file": "linux-aarch64-emiya-rustpi-7.3-1-aarch64.pkg.tar.zst",
+        "sha256": "25320ebbbc6834b83bb771915be3172996ba5d72ef4f2013eda0580d1305adf6",
+        "recipe_sha256": "0d3f379d22305e9f7cc8dfdb18b8240ac32ea11e06309785175c3fd46f643868",
         "origin": "github-actions",
         "dependencies": [
           "coreutils",
@@ -147,61 +147,60 @@
       },
       "linux-aarch64-emiya-rustpi-headers": {
         "name": "linux-aarch64-emiya-rustpi-headers",
-        "version": "7.2.12-1",
+        "version": "7.3-1",
         "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-headers-7.2.12-1-aarch64.pkg.tar.zst",
-        "sha256": "256911c8ad81252632e1588a56f994284b6a781a71072dcd8c8477113d7dc1bc",
-        "recipe_sha256": "7be0468a114c3e85ef78b213e10a8147b4b46ac13456117c0a0c7c6f60088a3f",
+        "file": "linux-aarch64-emiya-rustpi-headers-7.3-1-aarch64.pkg.tar.zst",
+        "sha256": "ba60aa1de22026d0afa7439e85afcf0d803fdcc872c0b1f8b8253dc4f7841214",
+        "recipe_sha256": "0d3f379d22305e9f7cc8dfdb18b8240ac32ea11e06309785175c3fd46f643868",
         "origin": "github-actions",
         "dependencies": [
-          "linux-aarch64-emiya-rustpi=7.2.12-1",
+          "linux-aarch64-emiya-rustpi=7.3-1",
           "glibc"
         ]
       },
       "linux-aarch64-emiya-rustpi-rknpu": {
         "name": "linux-aarch64-emiya-rustpi-rknpu",
-        "version": "7.2.12-1",
+        "version": "7.3-1",
         "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-rknpu-7.2.12-1-aarch64.pkg.tar.zst",
-        "sha256": "2de3bceaf942377b0dc6585334c0e0f10d783c7a46c555a9e74873605f4d18b7",
-        "recipe_sha256": "7be0468a114c3e85ef78b213e10a8147b4b46ac13456117c0a0c7c6f60088a3f",
+        "file": "linux-aarch64-emiya-rustpi-rknpu-7.3-1-aarch64.pkg.tar.zst",
+        "sha256": "c5ffaca69bd8178276e444a65b16e3d41b99c5b9f1f1ec97674c6cce41270002",
+        "recipe_sha256": "0d3f379d22305e9f7cc8dfdb18b8240ac32ea11e06309785175c3fd46f643868",
         "origin": "github-actions",
         "dependencies": [
-          "linux-aarch64-emiya-rustpi=7.2.12-1",
+          "linux-aarch64-emiya-rustpi=7.3-1",
           "kmod"
         ]
       }
     },
     "groups": {
       "ffmpeg": {
-        "recipe_sha256": "fc8583a9be60ca9ccbdade17ff14ee926d7af10842e64533f0ab38469c879e76",
+        "recipe_sha256": "ac277b5e518c029276f4f8e65caab071a272f060ffb678f0d2bf2591096241f1",
         "source": {
           "alarm_commit": "72248ab7d35fd523d69013a4a9d3b2111512e35b",
           "version": "2:9.0.2-2.2"
         }
       },
       "integration": {
-        "recipe_sha256": "fa67d7c42f85c2497b93c7661f6d13ba17218c611f3687b9a9d214dae7747de3",
+        "recipe_sha256": "7488bf672809adbb3327abdb3d6a67cf662800641522b9d1c912ea4f793b19fb",
         "source": {}
       },
       "kernel": {
-        "recipe_sha256": "dfc6b282e5f8eb5593336f5d39519b24eb221f612f5803f9d7a6c13d35a8a4d0",
+        "recipe_sha256": "2e4762b854059fdb0eeb6c1de816662b7decf15207797b9b5b1ebeb25a558136",
         "source": {
-          "alarm_commit": "0e55b970ab6f10c2c1b1bbe8e31bbd3d9ca0e74b",
-          "version": "7.2.12-1",
+          "alarm_commit": "2b9d6582700fdec8ab92ed74a96c15e0c13a0435",
+          "version": "7.3-1",
           "rknpu_commit": "a6bcdb120b8a21255c6520f0504a13a5d37b9045",
-          "source_name": "linux-7.2",
+          "source_name": "linux-7.3",
           "sources": {
-            "https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.2.tar.xz": "f9fef3d14c0df53819026f4be74459835c2a0b0dcbf5b5bbd9ea19f0829402b3",
-            "https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.2.12.xz": "db20b9c86ae2680a27c4d8ceb50c47cb78f4319d7dddc1ce99ced8a59e429283",
+            "https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.tar.xz": "87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953",
             "0001-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch": "3cc4e31aef52c091b86609f2750069cad44a089c3b9228585d2375b72967d076",
             "0002-pps-Compatibility-hack-should-be-X86-specific.patch": "b0ac7e7828601b034c5f82cf5d0bf7a0fdc67fc79644fc4ebd2ac20c167c13a7",
             "0003-Revert-arm64-dts-rockchip-Move-rk3568-PCIe3-MSI-to-u.patch": "9b7bbd201e08602a829fb1293541764863dddcc4f046e5befd801a9af78ca9e9",
             "0004-serial-amba-pl011-add-arm-pl011-axi-binding-for-RP1.patch": "ca9adf0aed11a8b2372998477cc9e91ea3564cef7066d6ddc4fd0007dbe5d4e5",
             "0005-arm64-dts-rpi5-add-RP1-UART0-GPIO14-15-console.patch": "9884639546f2d7612518ba8e4d0b01ca2c5f919370059f2c71542a7adc031901",
-            "rustpi-dp.patch.xz": "73ef467e5e3206456df0f210430c48d7ac83544cf1124d312918299872a42223",
-            "config": "ba79ced759e4f4809f99a262ee839c382b66d98ae6b0c424c9ced4675b2157f0",
-            "dp-commits.txt": "ebe81c36a094541c68e58353fa6b3331b3062982be70fff6a68b62a63ed651cb",
+            "rustpi-dp.patch.xz": "e8eb2e4a2eeb6f76c68826deec3f78df74d6beda6ef6d361cae9910731dd6f08",
+            "config": "b76c91d0742197ccd73dfa355ebc534e6938f4fb6af03de33038182b941ac0ae",
+            "dp-commits.txt": "1c2cf05af9570ee000c5bd8372f3229a0175327273696fba8c19d43a3effe663",
             "rknpu-a6bcdb120b8a21255c6520f0504a13a5d37b9045.tar.gz::https://codeload.github.com/lurenJBD/rk3588-rknn-core/tar.gz/a6bcdb120b8a21255c6520f0504a13a5d37b9045": "9f30de630bdfd9bbbfb2f4914acc0cacfe55e3ffdd8a468ddeb65637adfc3037",
             "60-rustpi-rknpu.conf": "3d726bea912f5e3966d29d0af9fe73c0fa42ba981a7fdbbd9735b0a3980c3abb",
             "60-rustpi-rknpu-load.conf": "de4964dad8b6fb6b981d98e21b100259e8ed297e7242922529849cdd02609698"
@@ -225,6 +224,20 @@
         ]
       },
       {
+        "name": "linux-aarch64-emiya-rustpi",
+        "version": "7.2.12-1",
+        "arch": "aarch64",
+        "file": "linux-aarch64-emiya-rustpi-7.2.12-1-aarch64.pkg.tar.zst",
+        "sha256": "ad77c282deda45717a61ddcc87be9f588a8a5175db46883ad08279872a2c56b7",
+        "recipe_sha256": "7be0468a114c3e85ef78b213e10a8147b4b46ac13456117c0a0c7c6f60088a3f",
+        "origin": "github-actions",
+        "dependencies": [
+          "coreutils",
+          "initramfs",
+          "kmod"
+        ]
+      },
+      {
         "name": "linux-aarch64-emiya-rustpi-headers",
         "version": "7.2.11-1",
         "arch": "aarch64",
@@ -238,6 +251,19 @@
         ]
       },
       {
+        "name": "linux-aarch64-emiya-rustpi-headers",
+        "version": "7.2.12-1",
+        "arch": "aarch64",
+        "file": "linux-aarch64-emiya-rustpi-headers-7.2.12-1-aarch64.pkg.tar.zst",
+        "sha256": "256911c8ad81252632e1588a56f994284b6a781a71072dcd8c8477113d7dc1bc",
+        "recipe_sha256": "7be0468a114c3e85ef78b213e10a8147b4b46ac13456117c0a0c7c6f60088a3f",
+        "origin": "github-actions",
+        "dependencies": [
+          "linux-aarch64-emiya-rustpi=7.2.12-1",
+          "glibc"
+        ]
+      },
+      {
         "name": "linux-aarch64-emiya-rustpi-rknpu",
         "version": "7.2.11-1",
         "arch": "aarch64",
@@ -247,6 +273,19 @@
         "origin": "hardware-validated-local-build",
         "dependencies": [
           "linux-aarch64-emiya-rustpi=7.2.11-1",
+          "kmod"
+        ]
+      },
+      {
+        "name": "linux-aarch64-emiya-rustpi-rknpu",
+        "version": "7.2.12-1",
+        "arch": "aarch64",
+        "file": "linux-aarch64-emiya-rustpi-rknpu-7.2.12-1-aarch64.pkg.tar.zst",
+        "sha256": "2de3bceaf942377b0dc6585334c0e0f10d783c7a46c555a9e74873605f4d18b7",
+        "recipe_sha256": "7be0468a114c3e85ef78b213e10a8147b4b46ac13456117c0a0c7c6f60088a3f",
+        "origin": "github-actions",
+        "dependencies": [
+          "linux-aarch64-emiya-rustpi=7.2.12-1",
           "kmod"
         ]
       },
@@ -366,10 +405,10 @@
     ],
     "recipes": {
       "file": "build-recipes.tar.gz",
-      "sha256": "ab732959c24d4e5674f7cf1bfbd81c0b78b49b8f7072f667092257cc49855182"
+      "sha256": "28038b293d9d5cdb150dae7b0688864647cc4bd7fefac5dfab34c1d14ea55854"
     },
-    "build_commit": "27cfebe524cef8519734be0178dadde6aef86f0e",
-    "build_run": "40063584887",
-    "publication_run": "40067125281"
+    "build_commit": "c0572776a98664e790ab4239692dc4b945c440ea",
+    "build_run": "40149240007",
+    "publication_run": "40149240007"
   }
 }
