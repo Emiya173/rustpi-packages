@@ -5,6 +5,7 @@ pkgname=("$pkgbase" "$pkgbase-headers" "$pkgbase-rknpu")
 pkgver=@VERSION@
 pkgrel=@RELEASE@
 _srcname=@SOURCE_NAME@
+_dp_kernel_series=7.3
 _rknpu_commit=@RKNPU_COMMIT@
 arch=('aarch64')
 url='https://archlinuxarm.org/packages/aarch64/linux-aarch64'

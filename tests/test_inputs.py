@@ -10,6 +10,22 @@ spec.loader.exec_module(prepare)
 
 
 class InputTests(unittest.TestCase):
+    def test_kernel_release_includes_zero_sublevel(self):
+        for version, pkgrel, expected in (
+            ('7.3', '1', '7.3.0-1'),
+            ('7.3.1', '1.1', '7.3.1-1.1'),
+            ('7.2.12', '1', '7.2.12-1'),
+        ):
+            self.assertEqual(prepare.kernel_release(version, pkgrel),
+                             expected + '-aarch64-emiya-rustpi')
+
+    def test_kernel_patch_requires_a_reviewed_series(self):
+        for version in ('7.3', '7.3.1', '7.3.12'):
+            prepare.check_kernel_series(version, '7.3')
+        for version in ('7.2.12', '7.4', '7.30', '7.3rc1'):
+            with self.assertRaisesRegex(ValueError, 'needs a reviewed rebase'):
+                prepare.check_kernel_series(version, '7.3')
+
     def test_upstream_arrays_keep_git_tag_and_quoted_paths(self):
         text = '''source=(git+https://example.org/a.git?signed#tag=n${pkgver}
           '0001-a.patch' "config")'''

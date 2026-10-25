@@ -62,9 +62,23 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def check_kernel_series(version, supported):
+    if not re.fullmatch(re.escape(supported) + r'(?:\.\d+)*', version):
+        raise ValueError(f'DP patch supports Linux {supported}.x; upstream {version} needs a reviewed rebase')
+
+
+def kernel_release(version, pkgrel):
+    # The initial release is packaged as e.g. 7.3, but Kbuild includes SUBLEVEL=0.
+    if len(version.split('.')) == 2:
+        version += '.0'
+    return f'{version}-{pkgrel}-aarch64-emiya-rustpi'
+
+
 def kernel():
     recipe, base, upstream, commit = snapshot('core/linux-aarch64', 'kernel')
     version, release, source_name = (scalar(recipe, n) for n in ('pkgver', 'pkgrel', '_srcname'))
+    template = (ROOT / 'ci/kernel.PKGBUILD.in').read_text()
+    check_kernel_series(version, scalar(template, '_dp_kernel_series'))
     source_names = array(recipe, 'source')
     checksums = array(recipe, 'md5sums')
     assert len(source_names) == len(checksums)
@@ -100,7 +114,6 @@ def kernel():
     src += [f'rknpu-{npu_commit}.tar.gz::https://codeload.github.com/lurenJBD/rk3588-rknn-core/tar.gz/{npu_commit}',
             '60-rustpi-rknpu.conf', '60-rustpi-rknpu-load.conf']
     sums += [PINS['rknpu_sha256']] + [sha((package / x).read_bytes()) for x in src[-2:]]
-    template = (ROOT / 'ci/kernel.PKGBUILD.in').read_text()
     for key, value in {'VERSION': version, 'RELEASE': pkgrel, 'SOURCE_NAME': source_name,
                        'ALARM_COMMIT': commit, 'RKNPU_COMMIT': npu_commit,
                        'SOURCES': '\n  '.join(repr(x) for x in src),
@@ -108,10 +121,11 @@ def kernel():
         template = template.replace('@' + key + '@', value)
     assert not re.search(r'@[A-Z_]+@', template)
     (package / 'PKGBUILD').write_text(template)
+    kver = kernel_release(version, pkgrel)
     (package / 'rknpu.install').write_text(
-        f'post_install() {{ depmod {version}-{pkgrel}-aarch64-emiya-rustpi; }}\n'
+        f'post_install() {{ depmod {kver}; }}\n'
         'post_upgrade() { post_install; }\n'
-        f'post_remove() {{ if [[ -f /usr/lib/modules/{version}-{pkgrel}-aarch64-emiya-rustpi/modules.order ]]; then post_install; fi; }}\n')
+        f'post_remove() {{ if [[ -f /usr/lib/modules/{kver}/modules.order ]]; then post_install; fi; }}\n')
     return {'alarm_commit': commit, 'version': f'{version}-{pkgrel}', 'rknpu_commit': npu_commit,
             'source_name': source_name, 'sources': dict(zip(src, sums))}
 

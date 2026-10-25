@@ -8,6 +8,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+from prepare import kernel_release
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -46,7 +47,7 @@ def main():
             versions = {d['pkgver'][0] for _, d in metadata.values()}
             assert len(versions) == 1
             version = versions.pop()
-            release = version + '-aarch64-emiya-rustpi'
+            release = kernel_release(*version.rsplit('-', 1))
             tree = root / 'usr/lib/modules' / release
             assert tree.is_dir() and (tree / 'pkgbase').read_text().strip() == 'linux-aarch64-emiya-rustpi'
             for name in ('linux-aarch64-emiya-rustpi-headers', 'linux-aarch64-emiya-rustpi-rknpu'):

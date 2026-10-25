@@ -1,3 +1,13 @@
+Linux 7.3 rebase (2026-10-25)
+Baseline: Linux 7.3 + ALARM patches, ALARM commit 2b9d6582700fdec8ab92ed74a96c15e0c13a0435.
+Original selection below was first rebased on Linux 7.2.11.
+The 7.3 delta omits already upstream DRM bridge state/iterator conversions
+and TCPM changes, retaining the 7.3 workqueue guard and identity checks.
+DRM out-of-band hotplug, Rockchip DP bus-format handling, USB/DP PHY,
+DWC3 role switching and Orange Pi 5 Plus endpoint wiring remain patched.
+PHY includes retain 7.3 gpio/consumer.h plus required hw_bitfield.h.
+Original commit provenance:
+
 a457d8a4ea6dcdc723f6dedc478dac93b220730d DP: 0004-f935e376ebec.patch
 63426833015e6e9cb42883bd2028f8dd423b1730 DP: 0005-4f5eb2734519.patch
 1d0b703ea3bc6c65870eae56cf4b20ec1069952a DP: 0006-461ef697c707.patch
