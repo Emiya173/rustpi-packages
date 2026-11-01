@@ -10,6 +10,25 @@ spec.loader.exec_module(prepare)
 
 
 class InputTests(unittest.TestCase):
+    def test_kernel_source_version_and_stable_patch_selection(self):
+        base = 'https://www.kernel.org/pub/linux/kernel/v7.x/'
+        archive = base + 'linux-7.3.tar.xz'
+        self.assertEqual(prepare.kernel_source_plan('7.3', 'linux-7.3', [archive]),
+                         ('linux-7.3', [archive], '', False))
+        patch = base + 'patch-7.3.1.xz'
+        self.assertEqual(prepare.kernel_source_plan('7.3.1', 'linux-7.3', [archive, patch]),
+                         ('linux-7.3', [archive, patch], 'patch-7.3.1.xz', False))
+        # Regression: ALARM 7.3.1 commented out its stable patch source.
+        full = base + 'linux-7.3.1.tar.xz'
+        self.assertEqual(prepare.kernel_source_plan('7.3.1', 'linux-7.3', [archive]),
+                         ('linux-7.3.1', [full], '', True))
+        self.assertEqual(prepare.kernel_source_plan('7.3.1', 'linux-7.3.1', [full]),
+                         ('linux-7.3.1', [full], '', False))
+        with self.assertRaises(ValueError):
+            prepare.kernel_source_plan('7.3.1', 'linux-7.3', [archive, base + 'patch-7.3.2.xz'])
+        with self.assertRaises(ValueError):
+            prepare.kernel_source_plan('7.3.1', 'linux-7.2', [base + 'linux-7.2.tar.xz'])
+
     def test_kernel_release_includes_zero_sublevel(self):
         for version, pkgrel, expected in (
             ('7.3', '1', '7.3.0-1'),

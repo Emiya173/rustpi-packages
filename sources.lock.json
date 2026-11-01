@@ -1,11 +1,11 @@
 {
   "kernel": {
-    "alarm_commit": "2b9d6582700fdec8ab92ed74a96c15e0c13a0435",
-    "version": "7.3-1",
+    "alarm_commit": "8edbaeecdb4ff72226631c2db0cef28592085e7b",
+    "version": "7.3.1-1",
     "rknpu_commit": "a6bcdb120b8a21255c6520f0504a13a5d37b9045",
-    "source_name": "linux-7.3",
+    "source_name": "linux-7.3.1",
     "sources": {
-      "https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.tar.xz": "87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953",
+      "https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.1.tar.xz": "fa595aad93734f829c963c2a90ef7c3673224fd7fdae7b49406e397cde2de231",
       "0001-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch": "3cc4e31aef52c091b86609f2750069cad44a089c3b9228585d2375b72967d076",
       "0002-pps-Compatibility-hack-should-be-X86-specific.patch": "b0ac7e7828601b034c5f82cf5d0bf7a0fdc67fc79644fc4ebd2ac20c167c13a7",
       "0003-Revert-arm64-dts-rockchip-Move-rk3568-PCIe3-MSI-to-u.patch": "9b7bbd201e08602a829fb1293541764863dddcc4f046e5befd801a9af78ca9e9",
@@ -17,6 +17,13 @@
       "rknpu-a6bcdb120b8a21255c6520f0504a13a5d37b9045.tar.gz::https://codeload.github.com/lurenJBD/rk3588-rknn-core/tar.gz/a6bcdb120b8a21255c6520f0504a13a5d37b9045": "9f30de630bdfd9bbbfb2f4914acc0cacfe55e3ffdd8a468ddeb65637adfc3037",
       "60-rustpi-rknpu.conf": "3d726bea912f5e3966d29d0af9fe73c0fa42ba981a7fdbbd9735b0a3980c3abb",
       "60-rustpi-rknpu-load.conf": "de4964dad8b6fb6b981d98e21b100259e8ed297e7242922529849cdd02609698"
+    },
+    "kernel_org_verification": {
+      "reason": "ALARM version differs from its source and omits the stable patch",
+      "url": "https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.1.tar.xz",
+      "signature_url": "https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.1.tar.sign",
+      "signature_sha256": "c69ab884b214a05e4d277a064102bebeac457c7dd38126bb97636089417028fa",
+      "signer": "647F28654894E3BD457199BE38DBBDC86092693E"
     }
   },
   "ffmpeg": {

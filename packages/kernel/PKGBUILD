@@ -1,10 +1,13 @@
 # ALARM kernel + USB-C DP + matching headers and RKNN-compatible NPU driver.
-# ALARM source commit: 2b9d6582700fdec8ab92ed74a96c15e0c13a0435
+# ALARM source commit: 8edbaeecdb4ff72226631c2db0cef28592085e7b
 pkgbase=linux-aarch64-emiya-rustpi
 pkgname=("$pkgbase" "$pkgbase-headers" "$pkgbase-rknpu")
-pkgver=7.3
+pkgver=7.3.1
 pkgrel=1
-_srcname=linux-7.3
+_srcname=linux-7.3.1
+_stable_patch=''
+_expected_version=7.3.1
+_expected_release=7.3.1-1-aarch64-emiya-rustpi
 _dp_kernel_series=7.3
 _rknpu_commit=a6bcdb120b8a21255c6520f0504a13a5d37b9045
 arch=('aarch64')
@@ -12,8 +15,9 @@ url='https://archlinuxarm.org/packages/aarch64/linux-aarch64'
 license=('GPL-2.0-only')
 makedepends=('bc' 'dtc' 'pahole' 'python' 'kmod' 'flex' 'bison' 'openssl' 'libelf')
 options=(!strip !debug !lto !buildflags)
+noextract=('rustpi-dp.patch.xz')
 source=(
-  'https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.tar.xz'
+  'https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.1.tar.xz'
   '0001-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch'
   '0002-pps-Compatibility-hack-should-be-X86-specific.patch'
   '0003-Revert-arm64-dts-rockchip-Move-rk3568-PCIe3-MSI-to-u.patch'
@@ -27,7 +31,7 @@ source=(
   '60-rustpi-rknpu-load.conf'
 )
 sha256sums=(
-  '87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953'
+  'fa595aad93734f829c963c2a90ef7c3673224fd7fdae7b49406e397cde2de231'
   '3cc4e31aef52c091b86609f2750069cad44a089c3b9228585d2375b72967d076'
   'b0ac7e7828601b034c5f82cf5d0bf7a0fdc67fc79644fc4ebd2ac20c167c13a7'
   '9b7bbd201e08602a829fb1293541764863dddcc4f046e5befd801a9af78ca9e9'
@@ -50,9 +54,12 @@ _kmake() {
 }
 prepare() {
   cd "$_srcname"
-  if [[ -f ../patch-${pkgver}.xz ]]; then
-    xz -cd ../patch-${pkgver}.xz | patch --forward --batch --fuzz=0 -p1
+  if [[ -n $_stable_patch ]]; then
+    [[ -f "$srcdir/$_stable_patch" ]] || { error "Missing stable kernel patch: $_stable_patch"; return 1; }
+    xz -cd "$srcdir/$_stable_patch" | patch --forward --batch --fuzz=0 -p1
   fi
+  local actual_version=$(_kmake -s kernelversion)
+  [[ $actual_version == "$_expected_version" ]] || { error "Kernel source version $actual_version does not match $_expected_version"; return 1; }
   for p in "$srcdir"/000*.patch; do patch --forward --batch --fuzz=0 -p1 < "$p"; done
   xz -cd ../rustpi-dp.patch.xz | patch --forward --batch --fuzz=0 -p1
   printf '%s\n' "-$pkgrel" > localversion.10-pkgrel
@@ -67,6 +74,7 @@ build() {
   unset LDFLAGS
   _kmake LOCALVERSION= olddefconfig prepare
   _kmake -s LOCALVERSION= kernelrelease > version
+  [[ $(<version) == "$_expected_release" ]] || { error "Kernel release $(<version) does not match $_expected_release"; return 1; }
   for symbol in EFI_STUB EFI_PARTITION BLK_DEV_NVME EXT4_FS R8169 DRM_ROCKCHIP DRM_DW_DP PHY_ROCKCHIP_USBDP USB_DWC3_ROCKCHIP TYPEC_FUSB302 TYPEC_DP_ALTMODE FRAMEBUFFER_CONSOLE VIDEO_ROCKCHIP_VDEC VIDEO_HANTRO CMA; do
     grep -Eq "^CONFIG_${symbol}=[ym]$" .config || { error "Required option missing: $symbol"; return 1; }
   done
@@ -140,6 +148,6 @@ package_linux-aarch64-emiya-rustpi-rknpu() {
   install -Dm644 "$srcdir/rk3588-rknn-core-$_rknpu_commit/rknpu.ko" "$pkgdir/usr/lib/modules/$kver/updates/rknpu.ko"
   install -Dm644 "$srcdir/60-rustpi-rknpu.conf" "$pkgdir/usr/lib/modprobe.d/60-rustpi-rknpu.conf"
   install -Dm644 "$srcdir/60-rustpi-rknpu-load.conf" "$pkgdir/usr/lib/modules-load.d/60-rustpi-rknpu.conf"
-  printf 'ALARM commit: 2b9d6582700fdec8ab92ed74a96c15e0c13a0435\nRKNPU commit: %s\nKernel release: %s\n' "$_rknpu_commit" "$kver" |
+  printf 'ALARM commit: 8edbaeecdb4ff72226631c2db0cef28592085e7b\nRKNPU commit: %s\nKernel release: %s\n' "$_rknpu_commit" "$kver" |
     install -Dm644 /dev/stdin "$pkgdir/usr/share/doc/$pkgbase-rknpu/BUILD-INFO"
 }

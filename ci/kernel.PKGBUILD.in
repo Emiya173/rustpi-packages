@@ -5,6 +5,9 @@ pkgname=("$pkgbase" "$pkgbase-headers" "$pkgbase-rknpu")
 pkgver=@VERSION@
 pkgrel=@RELEASE@
 _srcname=@SOURCE_NAME@
+_stable_patch='@STABLE_PATCH@'
+_expected_version=@KERNEL_VERSION@
+_expected_release=@KERNEL_RELEASE@
 _dp_kernel_series=7.3
 _rknpu_commit=@RKNPU_COMMIT@
 arch=('aarch64')
@@ -12,6 +15,7 @@ url='https://archlinuxarm.org/packages/aarch64/linux-aarch64'
 license=('GPL-2.0-only')
 makedepends=('bc' 'dtc' 'pahole' 'python' 'kmod' 'flex' 'bison' 'openssl' 'libelf')
 options=(!strip !debug !lto !buildflags)
+noextract=(@NOEXTRACT@)
 source=(
   @SOURCES@
 )
@@ -28,9 +32,12 @@ _kmake() {
 }
 prepare() {
   cd "$_srcname"
-  if [[ -f ../patch-${pkgver}.xz ]]; then
-    xz -cd ../patch-${pkgver}.xz | patch --forward --batch --fuzz=0 -p1
+  if [[ -n $_stable_patch ]]; then
+    [[ -f "$srcdir/$_stable_patch" ]] || { error "Missing stable kernel patch: $_stable_patch"; return 1; }
+    xz -cd "$srcdir/$_stable_patch" | patch --forward --batch --fuzz=0 -p1
   fi
+  local actual_version=$(_kmake -s kernelversion)
+  [[ $actual_version == "$_expected_version" ]] || { error "Kernel source version $actual_version does not match $_expected_version"; return 1; }
   for p in "$srcdir"/000*.patch; do patch --forward --batch --fuzz=0 -p1 < "$p"; done
   xz -cd ../rustpi-dp.patch.xz | patch --forward --batch --fuzz=0 -p1
   printf '%s\n' "-$pkgrel" > localversion.10-pkgrel
@@ -45,6 +52,7 @@ build() {
   unset LDFLAGS
   _kmake LOCALVERSION= olddefconfig prepare
   _kmake -s LOCALVERSION= kernelrelease > version
+  [[ $(<version) == "$_expected_release" ]] || { error "Kernel release $(<version) does not match $_expected_release"; return 1; }
   for symbol in EFI_STUB EFI_PARTITION BLK_DEV_NVME EXT4_FS R8169 DRM_ROCKCHIP DRM_DW_DP PHY_ROCKCHIP_USBDP USB_DWC3_ROCKCHIP TYPEC_FUSB302 TYPEC_DP_ALTMODE FRAMEBUFFER_CONSOLE VIDEO_ROCKCHIP_VDEC VIDEO_HANTRO CMA; do
     grep -Eq "^CONFIG_${symbol}=[ym]$" .config || { error "Required option missing: $symbol"; return 1; }
   done

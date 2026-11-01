@@ -6,12 +6,16 @@ Updates are compiled in disposable ARM64 ALARM roots without signing credentials
 """
 import argparse
 import hashlib
+import io
 import json
+import lzma
 import os
 from pathlib import Path
 import re
 import shlex
 import shutil
+import subprocess
+import tempfile
 import urllib.error
 import urllib.request
 
@@ -74,6 +78,55 @@ def kernel_release(version, pkgrel):
     return f'{version}-{pkgrel}-aarch64-emiya-rustpi'
 
 
+def kernel_source_plan(version, source_name, urls):
+    base = source_name.removeprefix('linux-')
+    series = '.'.join(version.split('.')[:2])
+    if not re.fullmatch(r'\d+\.\d+(?:\.\d+)?', base) or '.'.join(base.split('.')[:2]) != series:
+        raise ValueError(f'Unexpected kernel source {source_name} for {version}')
+    directory = f'https://www.kernel.org/pub/linux/kernel/v{version.split(".")[0]}.x/'
+    archive = directory + source_name + '.tar.xz'
+    if not urls or urls[0] != archive:
+        raise ValueError(f'Unexpected kernel source URLs: {urls}')
+    if kernel_release(base, '1') == kernel_release(version, '1'):
+        if urls != [archive]:
+            raise ValueError('Unexpected stable patch for a full-version kernel source')
+        return source_name, urls, '', False
+    patch = f'patch-{version}.xz'
+    if urls == [archive, directory + patch]:
+        return source_name, urls, patch, False
+    if urls != [archive]:
+        raise ValueError(f'Unexpected stable patch URLs: {urls}')
+    # ALARM 7.3.1 bumped pkgver but left the stable patch URL commented out.
+    # Obtain the exact version from kernel.org, with a developer signature.
+    return f'linux-{version}', [directory + f'linux-{version}.tar.xz'], '', True
+
+
+def verify_kernel_archive(data, signature):
+    allowed = {'647F28654894E3BD457199BE38DBBDC86092693E',
+               'E27E5D8A3403A2EF66873BBCDEA66FF797772CDC'}
+    with tempfile.TemporaryDirectory(prefix='rustpi-kernel-signature-') as directory:
+        home = Path(directory)
+        command = ['gpg', '--batch', '--homedir', str(home)]
+        subprocess.run(command + ['--import', str(ROOT / 'keys/kernel-stable.asc')],
+                       capture_output=True, check=True)
+        signed = home / 'linux.tar.sign'
+        signed.write_bytes(signature)
+        with subprocess.Popen(command + ['--status-fd=1', '--verify', str(signed), '-'],
+                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+            with lzma.LZMAFile(io.BytesIO(data)) as archive:
+                shutil.copyfileobj(archive, process.stdin, length=1024 * 1024)
+            process.stdin.close()
+            process.stdin = None
+            status, errors = process.communicate()
+            if process.returncode:
+                raise ValueError('Kernel developer signature failed: ' + errors.decode())
+        for line in status.decode().splitlines():
+            fields = line.split()
+            if fields[:2] == ['[GNUPG:]', 'VALIDSIG'] and fields[-1] in allowed:
+                return fields[-1]
+        raise ValueError('Kernel archive was not signed by a pinned stable release developer')
+
+
 def kernel():
     recipe, base, upstream, commit = snapshot('core/linux-aarch64', 'kernel')
     version, release, source_name = (scalar(recipe, n) for n in ('pkgver', 'pkgrel', '_srcname'))
@@ -97,14 +150,29 @@ def kernel():
         (upstream / name).write_bytes(data)
         (package / name).write_bytes(data)
         hashes[name] = sha(data)
-    urls = []
+    downloads = {}
     for text, expected in zip(source_names, checksums):
         if text.startswith('https://www.kernel.org/'):
             url = text.replace('${_srcname}', source_name).replace('${pkgver}', version)
-            data = get(url)
-            assert hashlib.md5(data).hexdigest() == expected, url
-            urls.append((url, sha(data)))
-    assert 1 <= len(urls) <= 2
+            downloads[url] = expected
+    source_name, selected, stable_patch, fallback = kernel_source_plan(version, source_name, list(downloads))
+    urls = []
+    verification = None
+    for url in selected:
+        data = get(url)
+        if fallback:
+            signature_url = url.removesuffix('.xz') + '.sign'
+            signature = get(signature_url)
+            signer = verify_kernel_archive(data, signature)
+            (upstream / 'kernel-source.tar.sign').write_bytes(signature)
+            verification = {'reason': 'ALARM version differs from its source and omits the stable patch',
+                            'url': url, 'signature_url': signature_url,
+                            'signature_sha256': sha(signature), 'signer': signer}
+        else:
+            assert hashlib.md5(data).hexdigest() == downloads[url], url
+        urls.append((url, sha(data)))
+    if not fallback:
+        (upstream / 'kernel-source.tar.sign').unlink(missing_ok=True)
     revision = PINS['kernel_revision']
     pkgrel = release + (f'.{revision}' if revision else '')
     src = [x[0] for x in urls] + patches + ['rustpi-dp.patch.xz', 'config', 'dp-commits.txt']
@@ -115,6 +183,10 @@ def kernel():
             '60-rustpi-rknpu.conf', '60-rustpi-rknpu-load.conf']
     sums += [PINS['rknpu_sha256']] + [sha((package / x).read_bytes()) for x in src[-2:]]
     for key, value in {'VERSION': version, 'RELEASE': pkgrel, 'SOURCE_NAME': source_name,
+                       'KERNEL_VERSION': kernel_release(version, pkgrel).split('-')[0],
+                       'KERNEL_RELEASE': kernel_release(version, pkgrel),
+                       'STABLE_PATCH': stable_patch,
+                       'NOEXTRACT': ' '.join(repr(x) for x in ['rustpi-dp.patch.xz', stable_patch] if x),
                        'ALARM_COMMIT': commit, 'RKNPU_COMMIT': npu_commit,
                        'SOURCES': '\n  '.join(repr(x) for x in src),
                        'SUMS': '\n  '.join(repr(x) for x in sums)}.items():
@@ -126,8 +198,11 @@ def kernel():
         f'post_install() {{ depmod {kver}; }}\n'
         'post_upgrade() { post_install; }\n'
         f'post_remove() {{ if [[ -f /usr/lib/modules/{kver}/modules.order ]]; then post_install; fi; }}\n')
-    return {'alarm_commit': commit, 'version': f'{version}-{pkgrel}', 'rknpu_commit': npu_commit,
-            'source_name': source_name, 'sources': dict(zip(src, sums))}
+    result = {'alarm_commit': commit, 'version': f'{version}-{pkgrel}', 'rknpu_commit': npu_commit,
+              'source_name': source_name, 'sources': dict(zip(src, sums))}
+    if verification:
+        result['kernel_org_verification'] = verification
+    return result
 
 
 def ffmpeg():
