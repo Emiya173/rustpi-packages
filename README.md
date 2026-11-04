@@ -28,6 +28,8 @@ DP、V4L2 Request 和 RKNPU 补丁固定在已验证的来源；上游 API 出�
 若 ALARM 配方的版本号已更新，却遗漏对应稳定版补丁，计划阶段改用该版本的
 kernel.org 完整源码，并核对固定维护者公钥的开发者签名，签名与来源写入源码锁定。
 源码准备和编译开始前分别检查真实内核版本、完整 release，版本不符立即停止。
+FFmpeg 在上游修改配方但未增加版本时，会根据已发布配方自动递增本地 pkgrel；
+重复检查相同输入会保持版本不变，发布器继续拒绝用不同内容覆盖同版本文件。
 
 包和数据库均使用专用 Ed25519 签名。先上传完整 draft release，再将它公开并
 设为 latest；客户端不会看到只发布了一半的内核组。同版本的已发布二进制不会
@@ -72,8 +74,9 @@ PR 只能构建，拿不到发布凭据。构建任务只读仓库，签名密�
 主密钥保留在维护者本地；签名子密钥有效期两年。
 
 修改同一上游版本的内核补丁或 NPU 提交时，提高 `ci/pins.json` 的
-`kernel_revision`；修改 FFmpeg 补丁时提高 `ffmpeg_revision`；修改适配器或
-keyring 时提高其 PKGBUILD 版本。发布器拒绝未经版本递增的配方替换。
+`kernel_revision`。FFmpeg 的 `ffmpeg_revision` 是本地修订号下限，配方或补丁
+变化会自动递增已发布修订号；修改适配器或 keyring 时提高其 PKGBUILD 版本。
+发布器拒绝未经版本递增的配方替换。
 
 本地维护工具通过 `nix develop` 提供。真正的 CI 构建在 GitHub 上运行，
 不会在本机启动容器来模拟 Actions。仓库脚本采用 MIT 许可；Linux、FFmpeg、

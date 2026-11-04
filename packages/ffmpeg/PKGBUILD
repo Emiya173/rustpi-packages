@@ -5,8 +5,7 @@
 # Contributor: Paul Mattal <paul@archlinux.org>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
-#  - remove makedepends on ffnvcodec-headers, remove --enable-nvenc, --enable-nvdec
-#  - remove depends on aom, remove --enable-libaom
+#  - set --enable-nvenc, --enable-nvdec for AArch64 only
 #  - remove optdepends on intel-media-sdk, onevpl-intel-gpu
 #  - remove depends on onevpl, remove --enable-libvpl
 #  - remove depends on vmaf, remove --enable-vmaf
@@ -16,7 +15,7 @@
 
 pkgname=ffmpeg
 pkgver=9.0.2
-pkgrel=2.2
+pkgrel=2.3
 epoch=2
 pkgdesc='Complete solution to record, convert and stream audio and video'
 arch=(aarch64)
@@ -24,6 +23,7 @@ url=https://ffmpeg.org
 license=(GPL-3.0-only)
 depends=(
   alsa-lib
+  aom
   bzip2
   cairo
   dav1d
@@ -96,6 +96,7 @@ makedepends=(
   amf-headers
   avisynthplus
   clang
+  ffnvcodec-headers
   frei0r-plugins
   git
   glslang
@@ -110,6 +111,7 @@ optdepends=(
   'avisynthplus: AviSynthPlus support'
   'frei0r-plugins: Frei0r video effects support'
   'ladspa: LADSPA filters'
+  'nvidia-utils: Nvidia NVDEC/NVENC support'
 )
 provides=(
   "ffmpeg-rustpi=${pkgver}"
@@ -143,7 +145,6 @@ prepare() {
 build() {
   export PKG_CONFIG_PATH='/usr/lib/mbedtls2/pkgconfig'
   cd ffmpeg
-
   ./configure \
     --prefix=/usr \
     --disable-debug \
@@ -158,6 +159,7 @@ build() {
     --enable-gnutls \
     --enable-gpl \
     --enable-ladspa \
+    --enable-libaom \
     --enable-libass \
     --enable-libbluray \
     --enable-libbs2b \
@@ -205,6 +207,7 @@ build() {
     --enable-libxvid \
     --enable-libzimg \
     --enable-libzmq \
+    $([[ $CARCH == aarch64 ]] && echo "--enable-nvdec --enable-nvenc") \
     --enable-opencl \
     --enable-opengl \
     --enable-shared \

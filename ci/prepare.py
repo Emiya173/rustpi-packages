@@ -205,7 +205,25 @@ def kernel():
     return result
 
 
-def ffmpeg():
+def ffmpeg_package_version(recipe, epoch, version, release, previous):
+    """Keep published pkgrel stable; advance it when same-version inputs change."""
+    prefix = f'{epoch}:{version}-{release}.'
+    old = re.fullmatch(re.escape(prefix) + r'(\d+)', previous.get('version', ''))
+    revision = max(PINS['ffmpeg_revision'], int(old[1]) if old else 0)
+
+    def render(number):
+        assert recipe.count('@RUSTPI_RELEASE@') == 1
+        return recipe.replace('@RUSTPI_RELEASE@', f'{release}.{number}')
+
+    candidate = render(revision)
+    if old and revision == int(old[1]):
+        if package_digest('ffmpeg', recipe_override=candidate) != previous['recipe_sha256']:
+            revision += 1
+            candidate = render(revision)
+    return candidate, prefix + str(revision)
+
+
+def ffmpeg(previous=None):
     recipe, base, upstream, commit = snapshot('extra/ffmpeg', 'ffmpeg')
     version, release = scalar(recipe, 'pkgver'), scalar(recipe, 'pkgrel')
     package = ROOT / 'packages/ffmpeg'
@@ -218,7 +236,7 @@ def ffmpeg():
     assert re.search(r'^arch=\(.*?\)$', recipe, re.M), 'Missing ALARM architecture array'
     recipe = re.sub(r'^arch=\(.*?\)$', 'arch=(aarch64)', recipe, count=1, flags=re.M)
     edits = [
-        (f'pkgrel={release}', f'pkgrel={release}.{PINS["ffmpeg_revision"]}'),
+        (f'pkgrel={release}', 'pkgrel=@RUSTPI_RELEASE@'),
         ('  libudev.so\n', '  libudev.so\n'),
         ('  libavcodec.so\n', '  "ffmpeg-rustpi=${pkgver}"\n  libavcodec.so\n'),
         ('  systemd-libs\n', '  systemd-libs\n'),
@@ -245,8 +263,9 @@ def ffmpeg():
     match = re.search(r'^b2sums=\((.*?)\)', recipe, re.M | re.S)
     assert match
     recipe = recipe[:match.end()-1] + f"\n        '{custom_sum}'" + recipe[match.end()-1:]
+    recipe, package_version = ffmpeg_package_version(recipe, scalar(recipe, 'epoch'), version, release, previous or {})
     (package / 'PKGBUILD').write_text(recipe)
-    return {'alarm_commit': commit, 'version': f'{scalar(recipe,"epoch")}:{version}-{release}.{PINS["ffmpeg_revision"]}'}
+    return {'alarm_commit': commit, 'version': package_version}
 
 
 def recipe_files(name):
@@ -266,10 +285,12 @@ def digest(group):
     return h.hexdigest()
 
 
-def package_digest(name):
+def package_digest(name, recipe_override=None):
     h = hashlib.sha256()
     for path in sorted(recipe_files(name)):
-        h.update(str(path.relative_to(ROOT)).encode() + b'\0' + path.read_bytes())
+        data = (recipe_override.encode() if recipe_override is not None
+                and path == ROOT / 'packages' / name / 'PKGBUILD' else path.read_bytes())
+        h.update(str(path.relative_to(ROOT)).encode() + b'\0' + data)
     return h.hexdigest()
 
 
@@ -278,18 +299,19 @@ def main():
     parser.add_argument('--refresh', action='store_true')
     parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
-    if args.refresh:
-        lock = {'kernel': kernel(), 'ffmpeg': ffmpeg()}
-        (ROOT / 'sources.lock.json').write_text(json.dumps(lock, indent=2) + '\n')
-    lock = json.loads((ROOT / 'sources.lock.json').read_text())
-    previous = {}
+    manifest = {}
     try:
         release = json.loads(get(f'https://api.github.com/repos/{PINS["repository"]}/releases/latest'))
         url = next(a['browser_download_url'] for a in release['assets'] if a['name'] == 'manifest.json')
-        previous = json.loads(get(url)).get('groups', {})
+        manifest = json.loads(get(url))
     except urllib.error.HTTPError as exc:
         if exc.code != 404:
             raise
+    if args.refresh:
+        lock = {'kernel': kernel(), 'ffmpeg': ffmpeg(manifest.get('packages', {}).get('ffmpeg'))}
+        (ROOT / 'sources.lock.json').write_text(json.dumps(lock, indent=2) + '\n')
+    lock = json.loads((ROOT / 'sources.lock.json').read_text())
+    previous = manifest.get('groups', {})
     hashes = {g: digest(g) for g in GROUPS}
     selected = [g for g in GROUPS if args.force or previous.get(g, {}).get('recipe_sha256') != hashes[g]]
     plan = {'groups': {g: {'recipe_sha256': hashes[g], 'source': lock.get(g, {})} for g in GROUPS},
