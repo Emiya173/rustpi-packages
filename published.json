@@ -1,10 +1,10 @@
 {
-  "release": "repo-20261112T080943Z",
+  "release": "repo-20261114T053129Z",
   "manifest": {
     "schema": 1,
     "repository": "Emiya173/rustpi-packages",
     "fingerprint": "936E1ED81F1B219DA3F4D2260BBC591DA9D66626",
-    "created": "2026-11-12T08:09:42.406486+00:00",
+    "created": "2026-11-14T05:31:28.998403+00:00",
     "packages": {
       "emiya-rustpi-keyring": {
         "name": "emiya-rustpi-keyring",
@@ -134,11 +134,11 @@
       },
       "linux-aarch64-emiya-rustpi": {
         "name": "linux-aarch64-emiya-rustpi",
-        "version": "7.3.4-1",
+        "version": "7.3.4-1.1",
         "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-7.3.4-1-aarch64.pkg.tar.zst",
-        "sha256": "09be8ddec0d926e2dc248563ed5e3290e147b157fc09e7c2ff14a03cd04a14b8",
-        "recipe_sha256": "75c739f1bd5d3b0920e91ab682a5d44992b36c0f7e3aab162ac6e077d9fe9be3",
+        "file": "linux-aarch64-emiya-rustpi-7.3.4-1.1-aarch64.pkg.tar.zst",
+        "sha256": "8bf9fb308883aab469c2b05699f050d0e1a42c5ef14f6e0898ce4bbff569dd71",
+        "recipe_sha256": "92dcc7f2c070fe2357b0c597e2882a51e7208985a14f9ccc38f176e58570f0af",
         "origin": "github-actions",
         "dependencies": [
           "coreutils",
@@ -148,48 +148,48 @@
       },
       "linux-aarch64-emiya-rustpi-headers": {
         "name": "linux-aarch64-emiya-rustpi-headers",
-        "version": "7.3.4-1",
+        "version": "7.3.4-1.1",
         "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-headers-7.3.4-1-aarch64.pkg.tar.zst",
-        "sha256": "2f84a20f51f13f8121b561d38749d416177ac724f83eaa664b2477440e7f2348",
-        "recipe_sha256": "75c739f1bd5d3b0920e91ab682a5d44992b36c0f7e3aab162ac6e077d9fe9be3",
+        "file": "linux-aarch64-emiya-rustpi-headers-7.3.4-1.1-aarch64.pkg.tar.zst",
+        "sha256": "c4f80b4da7df177a566981196bda7e5ca6e885abf8f42abd8d4afde9bee7e01c",
+        "recipe_sha256": "92dcc7f2c070fe2357b0c597e2882a51e7208985a14f9ccc38f176e58570f0af",
         "origin": "github-actions",
         "dependencies": [
-          "linux-aarch64-emiya-rustpi=7.3.4-1",
+          "linux-aarch64-emiya-rustpi=7.3.4-1.1",
           "glibc"
         ]
       },
       "linux-aarch64-emiya-rustpi-rknpu": {
         "name": "linux-aarch64-emiya-rustpi-rknpu",
-        "version": "7.3.4-1",
+        "version": "7.3.4-1.1",
         "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-rknpu-7.3.4-1-aarch64.pkg.tar.zst",
-        "sha256": "d6a1de6ae8bc5ee580206bf45c2d5a6a02f7c624ae602c61283d50c9b0fd411c",
-        "recipe_sha256": "75c739f1bd5d3b0920e91ab682a5d44992b36c0f7e3aab162ac6e077d9fe9be3",
+        "file": "linux-aarch64-emiya-rustpi-rknpu-7.3.4-1.1-aarch64.pkg.tar.zst",
+        "sha256": "ceca2009079556a055376178ef3f9c5f8b4ad06af7db1cfdc885cf2835e8781c",
+        "recipe_sha256": "92dcc7f2c070fe2357b0c597e2882a51e7208985a14f9ccc38f176e58570f0af",
         "origin": "github-actions",
         "dependencies": [
-          "linux-aarch64-emiya-rustpi=7.3.4-1",
+          "linux-aarch64-emiya-rustpi=7.3.4-1.1",
           "kmod"
         ]
       }
     },
     "groups": {
       "ffmpeg": {
-        "recipe_sha256": "edf70f91cfb0725cc367baed34cb7752eeb75267b278b72a71f8ffff407e9d93",
+        "recipe_sha256": "a6879fddaac5f12b4546e4e0149ce2cc4ba4701a66e170de9ad4bc90dabb4e72",
         "source": {
           "alarm_commit": "c22297c0a01b9d14cb519c4d824f0ca00ffdcedc",
           "version": "2:9.0.2-3.2"
         }
       },
       "integration": {
-        "recipe_sha256": "7488bf672809adbb3327abdb3d6a67cf662800641522b9d1c912ea4f793b19fb",
+        "recipe_sha256": "acfa879f40c049729af7d7b41d8c7b0685c4c73437d7a632e7ed99205240faf3",
         "source": {}
       },
       "kernel": {
-        "recipe_sha256": "d416e31fa3ca64f592118da8fa7307d86d0f317dec539f5c1304a169fe08019f",
+        "recipe_sha256": "079dbee2a826d62c14e1fce665e08781d04df736cdef72cf1df758505627ec50",
         "source": {
           "alarm_commit": "b0250377061fe315a154f06e35e0d56800419025",
-          "version": "7.3.4-1",
+          "version": "7.3.4-1.1",
           "rknpu_commit": "a6bcdb120b8a21255c6520f0504a13a5d37b9045",
           "source_name": "linux-7.3",
           "sources": {
@@ -213,20 +213,6 @@
     "history": [
       {
         "name": "linux-aarch64-emiya-rustpi",
-        "version": "7.3.3-1",
-        "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-7.3.3-1-aarch64.pkg.tar.zst",
-        "sha256": "0fd0a85e2ce9321ecf5ecffd47183457032db9f7d5ec03ba2ad146ad4df51c9b",
-        "recipe_sha256": "2dbf8b14e87fff39d3587ae3cd13d6f47c86f8abb53f23089d4e0da728f62bfb",
-        "origin": "github-actions",
-        "dependencies": [
-          "coreutils",
-          "initramfs",
-          "kmod"
-        ]
-      },
-      {
-        "name": "linux-aarch64-emiya-rustpi",
         "version": "7.3.3-2",
         "arch": "aarch64",
         "file": "linux-aarch64-emiya-rustpi-7.3.3-2-aarch64.pkg.tar.zst",
@@ -240,16 +226,17 @@
         ]
       },
       {
-        "name": "linux-aarch64-emiya-rustpi-headers",
-        "version": "7.3.3-1",
+        "name": "linux-aarch64-emiya-rustpi",
+        "version": "7.3.4-1",
         "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-headers-7.3.3-1-aarch64.pkg.tar.zst",
-        "sha256": "f1ad18f5ef52bbb62b3a53936b43956e38f7862f5e72517deb50a89d8561423a",
-        "recipe_sha256": "2dbf8b14e87fff39d3587ae3cd13d6f47c86f8abb53f23089d4e0da728f62bfb",
+        "file": "linux-aarch64-emiya-rustpi-7.3.4-1-aarch64.pkg.tar.zst",
+        "sha256": "09be8ddec0d926e2dc248563ed5e3290e147b157fc09e7c2ff14a03cd04a14b8",
+        "recipe_sha256": "75c739f1bd5d3b0920e91ab682a5d44992b36c0f7e3aab162ac6e077d9fe9be3",
         "origin": "github-actions",
         "dependencies": [
-          "linux-aarch64-emiya-rustpi=7.3.3-1",
-          "glibc"
+          "coreutils",
+          "initramfs",
+          "kmod"
         ]
       },
       {
@@ -266,16 +253,16 @@
         ]
       },
       {
-        "name": "linux-aarch64-emiya-rustpi-rknpu",
-        "version": "7.3.3-1",
+        "name": "linux-aarch64-emiya-rustpi-headers",
+        "version": "7.3.4-1",
         "arch": "aarch64",
-        "file": "linux-aarch64-emiya-rustpi-rknpu-7.3.3-1-aarch64.pkg.tar.zst",
-        "sha256": "177d535c5e91501e4f5733556347f4aabae882b7a15946b76413ddd99be0ed66",
-        "recipe_sha256": "2dbf8b14e87fff39d3587ae3cd13d6f47c86f8abb53f23089d4e0da728f62bfb",
+        "file": "linux-aarch64-emiya-rustpi-headers-7.3.4-1-aarch64.pkg.tar.zst",
+        "sha256": "2f84a20f51f13f8121b561d38749d416177ac724f83eaa664b2477440e7f2348",
+        "recipe_sha256": "75c739f1bd5d3b0920e91ab682a5d44992b36c0f7e3aab162ac6e077d9fe9be3",
         "origin": "github-actions",
         "dependencies": [
-          "linux-aarch64-emiya-rustpi=7.3.3-1",
-          "kmod"
+          "linux-aarch64-emiya-rustpi=7.3.4-1",
+          "glibc"
         ]
       },
       {
@@ -288,6 +275,19 @@
         "origin": "github-actions",
         "dependencies": [
           "linux-aarch64-emiya-rustpi=7.3.3-2",
+          "kmod"
+        ]
+      },
+      {
+        "name": "linux-aarch64-emiya-rustpi-rknpu",
+        "version": "7.3.4-1",
+        "arch": "aarch64",
+        "file": "linux-aarch64-emiya-rustpi-rknpu-7.3.4-1-aarch64.pkg.tar.zst",
+        "sha256": "d6a1de6ae8bc5ee580206bf45c2d5a6a02f7c624ae602c61283d50c9b0fd411c",
+        "recipe_sha256": "75c739f1bd5d3b0920e91ab682a5d44992b36c0f7e3aab162ac6e077d9fe9be3",
+        "origin": "github-actions",
+        "dependencies": [
+          "linux-aarch64-emiya-rustpi=7.3.4-1",
           "kmod"
         ]
       },
@@ -508,10 +508,10 @@
     ],
     "recipes": {
       "file": "build-recipes.tar.gz",
-      "sha256": "1021b35af232de75fd314876fd8337a2e3c64308b10d65180abff1ed9aed5e1d"
+      "sha256": "b9a10eae6df8294491e4e331e7a42724c7e1b0b539751ddd06f32126eafc65df"
     },
-    "build_commit": "55483cc98035221d15eae17e9cbfe5544ee961bb",
-    "build_run": "43174281282",
-    "publication_run": "43174281282"
+    "build_commit": "59dd5dffcee82c8b10c3f502d347a1c503e30cf5",
+    "build_run": "43557866274",
+    "publication_run": "43557866274"
   }
 }
