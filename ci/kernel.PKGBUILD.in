@@ -30,6 +30,12 @@ _kmake() {
     make "$@"
   fi
 }
+_copy_header_tree() (
+  # Package source files with normal modes, links and timestamps. Archive mode
+  # also preserves ACL/ownership metadata that fakeroot can misreport.
+  umask 022
+  cp -dR --preserve=timestamps -- "$@"
+)
 prepare() {
   cd "$_srcname"
   if [[ -n $_stable_patch ]]; then
@@ -85,16 +91,16 @@ package_linux-aarch64-emiya-rustpi-headers() {
   install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map localversion.* version vmlinux
   install -Dt "$builddir/kernel" -m644 kernel/Makefile
   install -Dt "$builddir/arch/arm64" -m644 arch/arm64/Makefile
-  cp -a include "$builddir/"
-  cp -a arch/arm64/include "$builddir/arch/arm64/"
+  _copy_header_tree include "$builddir/"
+  _copy_header_tree arch/arm64/include "$builddir/arch/arm64/"
   install -d "$builddir/arch/arm"
-  cp -a arch/arm/include "$builddir/arch/arm/"
+  _copy_header_tree arch/arm/include "$builddir/arch/arm/"
   install -Dt "$builddir/arch/arm64/kernel" -m644 arch/arm64/kernel/asm-offsets.s
   if [[ -n ${RUSTPI_TARGET_CC:-} ]]; then
     [[ -n ${RUSTPI_HEADER_TOOLS_DIR:-} ]] || { error 'Set RUSTPI_HEADER_TOOLS_DIR to the rebuilt ARM64 tools'; return 1; }
-    cp -a "$RUSTPI_HEADER_TOOLS_DIR/scripts" "$builddir/"
+    _copy_header_tree "$RUSTPI_HEADER_TOOLS_DIR/scripts" "$builddir/"
   else
-    cp -a scripts "$builddir/"
+    _copy_header_tree scripts "$builddir/"
   fi
   for dir in drivers/md net/mac80211 drivers/media/usb/dvb-usb drivers/media/dvb-frontends drivers/media/tuners drivers/iio/common/hid-sensors; do
     install -Dt "$builddir/$dir" -m644 "$dir"/*.h

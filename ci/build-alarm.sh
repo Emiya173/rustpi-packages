@@ -10,6 +10,9 @@ case "$group" in
     integration) recipes=(jellyfin-adapter keyring);;
     *) exit 2;;
 esac
+if [[ $group == kernel ]]; then
+    python -m unittest discover -s tests -p test_header_copy.py -v
+fi
 for recipe in "${recipes[@]}"; do
     cd "/build/packages/$recipe"
     # Packaging-only integration recipes do not need their runtime dependencies
