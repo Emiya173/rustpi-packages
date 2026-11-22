@@ -1,19 +1,19 @@
 {
   "kernel": {
-    "alarm_commit": "b0250377061fe315a154f06e35e0d56800419025",
-    "version": "7.3.4-1.1",
+    "alarm_commit": "9fe7eeba1a34d9208f4222a539dd0c67e6a303fe",
+    "version": "7.3.5-2.2",
     "rknpu_commit": "a6bcdb120b8a21255c6520f0504a13a5d37b9045",
     "source_name": "linux-7.3",
     "sources": {
       "https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.tar.xz": "87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953",
-      "https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.3.4.xz": "278d9d703b58a94f38d704a7ac6e6512da4f93251149d72ef29d0b8aec1f2f77",
+      "https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.3.5.xz": "e4e0d4e145487087840f123650bed49f642756c34b4e613742c0a0019e0f15f4",
       "0001-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch": "3cc4e31aef52c091b86609f2750069cad44a089c3b9228585d2375b72967d076",
       "0002-pps-Compatibility-hack-should-be-X86-specific.patch": "b0ac7e7828601b034c5f82cf5d0bf7a0fdc67fc79644fc4ebd2ac20c167c13a7",
       "0003-Revert-arm64-dts-rockchip-Move-rk3568-PCIe3-MSI-to-u.patch": "9b7bbd201e08602a829fb1293541764863dddcc4f046e5befd801a9af78ca9e9",
       "0004-serial-amba-pl011-add-arm-pl011-axi-binding-for-RP1.patch": "ca9adf0aed11a8b2372998477cc9e91ea3564cef7066d6ddc4fd0007dbe5d4e5",
       "0005-arm64-dts-rpi5-add-RP1-UART0-GPIO14-15-console.patch": "9884639546f2d7612518ba8e4d0b01ca2c5f919370059f2c71542a7adc031901",
       "rustpi-dp.patch.xz": "e8eb2e4a2eeb6f76c68826deec3f78df74d6beda6ef6d361cae9910731dd6f08",
-      "config": "bb919cf229346e57c18e37a64005b9a44939346fb85d80842f3aa50a7ad25524",
+      "config": "ebd260f82e913536a1563f22eac2044d40cb50b2fc7debd27e81f6468ac28e3c",
       "dp-commits.txt": "1c2cf05af9570ee000c5bd8372f3229a0175327273696fba8c19d43a3effe663",
       "rknpu-a6bcdb120b8a21255c6520f0504a13a5d37b9045.tar.gz::https://codeload.github.com/lurenJBD/rk3588-rknn-core/tar.gz/a6bcdb120b8a21255c6520f0504a13a5d37b9045": "9f30de630bdfd9bbbfb2f4914acc0cacfe55e3ffdd8a468ddeb65637adfc3037",
       "60-rustpi-rknpu.conf": "3d726bea912f5e3966d29d0af9fe73c0fa42ba981a7fdbbd9735b0a3980c3abb",

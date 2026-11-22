@@ -1,13 +1,13 @@
 # ALARM kernel + USB-C DP + matching headers and RKNN-compatible NPU driver.
-# ALARM source commit: b0250377061fe315a154f06e35e0d56800419025
+# ALARM source commit: 9fe7eeba1a34d9208f4222a539dd0c67e6a303fe
 pkgbase=linux-aarch64-emiya-rustpi
 pkgname=("$pkgbase" "$pkgbase-headers" "$pkgbase-rknpu")
-pkgver=7.3.4
-pkgrel=1.1
+pkgver=7.3.5
+pkgrel=2.2
 _srcname=linux-7.3
-_stable_patch='patch-7.3.4.xz'
-_expected_version=7.3.4
-_expected_release=7.3.4-1.1-aarch64-emiya-rustpi
+_stable_patch='patch-7.3.5.xz'
+_expected_version=7.3.5
+_expected_release=7.3.5-2.2-aarch64-emiya-rustpi
 _dp_kernel_series=7.3
 _rknpu_commit=a6bcdb120b8a21255c6520f0504a13a5d37b9045
 arch=('aarch64')
@@ -15,10 +15,10 @@ url='https://archlinuxarm.org/packages/aarch64/linux-aarch64'
 license=('GPL-2.0-only')
 makedepends=('bc' 'dtc' 'pahole' 'python' 'kmod' 'flex' 'bison' 'openssl' 'libelf')
 options=(!strip !debug !lto !buildflags)
-noextract=('rustpi-dp.patch.xz' 'patch-7.3.4.xz')
+noextract=('rustpi-dp.patch.xz' 'patch-7.3.5.xz')
 source=(
   'https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.tar.xz'
-  'https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.3.4.xz'
+  'https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.3.5.xz'
   '0001-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch'
   '0002-pps-Compatibility-hack-should-be-X86-specific.patch'
   '0003-Revert-arm64-dts-rockchip-Move-rk3568-PCIe3-MSI-to-u.patch'
@@ -33,14 +33,14 @@ source=(
 )
 sha256sums=(
   '87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953'
-  '278d9d703b58a94f38d704a7ac6e6512da4f93251149d72ef29d0b8aec1f2f77'
+  'e4e0d4e145487087840f123650bed49f642756c34b4e613742c0a0019e0f15f4'
   '3cc4e31aef52c091b86609f2750069cad44a089c3b9228585d2375b72967d076'
   'b0ac7e7828601b034c5f82cf5d0bf7a0fdc67fc79644fc4ebd2ac20c167c13a7'
   '9b7bbd201e08602a829fb1293541764863dddcc4f046e5befd801a9af78ca9e9'
   'ca9adf0aed11a8b2372998477cc9e91ea3564cef7066d6ddc4fd0007dbe5d4e5'
   '9884639546f2d7612518ba8e4d0b01ca2c5f919370059f2c71542a7adc031901'
   'e8eb2e4a2eeb6f76c68826deec3f78df74d6beda6ef6d361cae9910731dd6f08'
-  'bb919cf229346e57c18e37a64005b9a44939346fb85d80842f3aa50a7ad25524'
+  'ebd260f82e913536a1563f22eac2044d40cb50b2fc7debd27e81f6468ac28e3c'
   '1c2cf05af9570ee000c5bd8372f3229a0175327273696fba8c19d43a3effe663'
   '9f30de630bdfd9bbbfb2f4914acc0cacfe55e3ffdd8a468ddeb65637adfc3037'
   '3d726bea912f5e3966d29d0af9fe73c0fa42ba981a7fdbbd9735b0a3980c3abb'
@@ -156,6 +156,6 @@ package_linux-aarch64-emiya-rustpi-rknpu() {
   install -Dm644 "$srcdir/rk3588-rknn-core-$_rknpu_commit/rknpu.ko" "$pkgdir/usr/lib/modules/$kver/updates/rknpu.ko"
   install -Dm644 "$srcdir/60-rustpi-rknpu.conf" "$pkgdir/usr/lib/modprobe.d/60-rustpi-rknpu.conf"
   install -Dm644 "$srcdir/60-rustpi-rknpu-load.conf" "$pkgdir/usr/lib/modules-load.d/60-rustpi-rknpu.conf"
-  printf 'ALARM commit: b0250377061fe315a154f06e35e0d56800419025\nRKNPU commit: %s\nKernel release: %s\n' "$_rknpu_commit" "$kver" |
+  printf 'ALARM commit: 9fe7eeba1a34d9208f4222a539dd0c67e6a303fe\nRKNPU commit: %s\nKernel release: %s\n' "$_rknpu_commit" "$kver" |
     install -Dm644 /dev/stdin "$pkgdir/usr/share/doc/$pkgbase-rknpu/BUILD-INFO"
 }
