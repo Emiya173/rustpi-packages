@@ -21,7 +21,7 @@
     }
   },
   "ffmpeg": {
-    "alarm_commit": "c22297c0a01b9d14cb519c4d824f0ca00ffdcedc",
-    "version": "2:9.0.2-3.2"
+    "alarm_commit": "c5cc7cda85eb87dbaef8f3a377bc2fc98547649c",
+    "version": "2:9.1-1.2"
   }
 }
