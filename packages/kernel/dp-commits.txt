@@ -1,3 +1,15 @@
+Linux 7.3.6 PHY rebase (2026-11-24)
+Baseline: Linux 7.3 plus stable patch-7.3.6 and ALARM patches,
+ALARM commit 9ac7ac84b82dfa6d252400acff189d15aa463945.
+Linux 7.3.6 integrates PHY clock/reset error handling, the DP configure
+mutex, one-lane mapping and link lane limits, and removal of PHY HPD
+and seamless takeover. The existing board overlay has these changes
+or their DP/DWC3-aware counterparts. Recompute only the PHY diff
+against the new stable blob (1d6ea291dbfed3); its output is unchanged
+(6dccef3f64cf24). Keep the AUX bridge, Type-C state/mode handling, DWC3
+reset notifier, and all other overlay sections, including the Orange
+Pi 5 Plus device-tree wiring.
+
 Linux 7.3 rebase (2026-10-25)
 Baseline: Linux 7.3 + ALARM patches, ALARM commit 2b9d6582700fdec8ab92ed74a96c15e0c13a0435.
 Original selection below was first rebased on Linux 7.2.11.
