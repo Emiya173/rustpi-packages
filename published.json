@@ -1,10 +1,10 @@
 {
-  "release": "repo-20261124T041223Z",
+  "release": "repo-20261128T202150Z",
   "manifest": {
     "schema": 1,
     "repository": "Emiya173/rustpi-packages",
     "fingerprint": "936E1ED81F1B219DA3F4D2260BBC591DA9D66626",
-    "created": "2026-11-24T04:12:22.679255+00:00",
+    "created": "2026-11-28T20:21:49.389371+00:00",
     "packages": {
       "emiya-rustpi-keyring": {
         "name": "emiya-rustpi-keyring",
@@ -20,11 +20,11 @@
       },
       "ffmpeg": {
         "name": "ffmpeg",
-        "version": "2:9.1-1.2",
+        "version": "2:9.1-2.2",
         "arch": "aarch64",
-        "file": "ffmpeg-9.1-1.2-aarch64.pkg.tar.zst",
-        "sha256": "627f20cf3815d6cc0fd6bcc3d1280dcaff047cf709f3b44ac096479ff97cf24d",
-        "recipe_sha256": "5d79c137e682dd1a8d8de8df0ad2f68518b213c730e2ad0f3b9551356b0a86a2",
+        "file": "ffmpeg-9.1-2.2-aarch64.pkg.tar.zst",
+        "sha256": "99927e4654d4482f63aa12517769e44e4829c5ab10a7a0ef1af4c2e636260dc7",
+        "recipe_sha256": "941e4ed4237ddb4572a43a0f36dbec8619406a8ef239a2ffd71d0db8d076fe7b",
         "origin": "github-actions",
         "dependencies": [
           "alsa-lib",
@@ -60,6 +60,7 @@
           "libplacebo",
           "libpulse",
           "libraw1394",
+          "librist",
           "librsvg",
           "libsoxr",
           "libssh",
@@ -174,10 +175,10 @@
     },
     "groups": {
       "ffmpeg": {
-        "recipe_sha256": "66320bb622f2a9a6a5baef2c30cb6f986f2f6f3ecdb23876166197425419d0d7",
+        "recipe_sha256": "1682acdc3a87a71ff5edb1235b9f21ca8512ee36b5aaf28870e8043966686b35",
         "source": {
-          "alarm_commit": "c5cc7cda85eb87dbaef8f3a377bc2fc98547649c",
-          "version": "2:9.1-1.2"
+          "alarm_commit": "3ff0b16515b2662247daee60bd6dcb6ea9d2ed8e",
+          "version": "2:9.1-2.2"
         }
       },
       "integration": {
@@ -292,11 +293,11 @@
       },
       {
         "name": "ffmpeg",
-        "version": "2:9.0.2-3.2",
+        "version": "2:9.0.2-5.2",
         "arch": "aarch64",
-        "file": "ffmpeg-9.0.2-3.2-aarch64.pkg.tar.zst",
-        "sha256": "49759b211991ad3331350b454ab9a41b0325c4aa2ee826e30dc75b0d189a7e55",
-        "recipe_sha256": "41b65ed865fa8f137b9f94b81fd1cf2fee7b4fdefa59598710064a61ec843334",
+        "file": "ffmpeg-9.0.2-5.2-aarch64.pkg.tar.zst",
+        "sha256": "57b5420ded5074a4a0ffa33dee5ce7da42dc91d1ff066048fa868248afa2e1a0",
+        "recipe_sha256": "e180ab6d4e86e2b25c0f8474c87c44322ef7cea0036fc2816d7136b7a7b6ab61",
         "origin": "github-actions",
         "dependencies": [
           "alsa-lib",
@@ -374,7 +375,6 @@
           "libfreetype.so=6-64",
           "libharfbuzz.so=0-64",
           "libopenmpt.so=0-64",
-          "libplacebo.so=360-64",
           "librsvg-2.so=2-64",
           "librubberband.so=3-64",
           "libva.so=2-64",
@@ -393,11 +393,11 @@
       },
       {
         "name": "ffmpeg",
-        "version": "2:9.0.2-5.2",
+        "version": "2:9.1-1.2",
         "arch": "aarch64",
-        "file": "ffmpeg-9.0.2-5.2-aarch64.pkg.tar.zst",
-        "sha256": "57b5420ded5074a4a0ffa33dee5ce7da42dc91d1ff066048fa868248afa2e1a0",
-        "recipe_sha256": "e180ab6d4e86e2b25c0f8474c87c44322ef7cea0036fc2816d7136b7a7b6ab61",
+        "file": "ffmpeg-9.1-1.2-aarch64.pkg.tar.zst",
+        "sha256": "627f20cf3815d6cc0fd6bcc3d1280dcaff047cf709f3b44ac096479ff97cf24d",
+        "recipe_sha256": "5d79c137e682dd1a8d8de8df0ad2f68518b213c730e2ad0f3b9551356b0a86a2",
         "origin": "github-actions",
         "dependencies": [
           "alsa-lib",
@@ -507,10 +507,10 @@
     ],
     "recipes": {
       "file": "build-recipes.tar.gz",
-      "sha256": "5ab695331ea5ef677621488783e222225392b79c7c98a374edc6fd84155fa827"
+      "sha256": "10aefb6e7d0eae1f1f7125625430e4ef18925b6ba475541838c83736913985f7"
     },
-    "build_commit": "ea3ad5adab8162dbdfd87fb718abf0156f7c366b",
-    "build_run": "45318518601",
-    "publication_run": "45318518601"
+    "build_commit": "6f0fa44fad6e53835145307bcc50e736201e83b8",
+    "build_run": "46185110330",
+    "publication_run": "46185110330"
   }
 }
